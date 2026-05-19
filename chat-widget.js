@@ -361,21 +361,23 @@
       const clickable = target.closest("a, button");
       if (!clickable) return;
 
+      // Fontos: a chat widgeten belüli gombokat nem szabad globálisan elkapni,
+      // mert akkor az "Ajánlatkérés elküldése" submit gomb sem tudná beküldeni az űrlapot.
+      // A chat saját gombjait külön eseménykezelők kezelik lejjebb.
+      if (clickable.closest(".laprix-chat-root")) return;
+
       const text = (clickable.textContent || "").trim().toLowerCase();
       const href = (clickable.getAttribute("href") || "").toLowerCase();
 
       const isQuoteCta =
         clickable.hasAttribute("data-open-laprix-lead") ||
         text.includes("ajánlatkérés e-mailben") ||
-        text.includes("ajánlatot kérek") ||
-        text.includes("ajánlatkérés") ||
+        text === "ajánlatot kérek" ||
+        text === "ajánlatkérés" ||
         href.includes("subject=egyedi%20programfejleszt") ||
         href.includes("mailto:hello@laprixaistudio.hu");
 
       if (!isQuoteCta) return;
-
-      // Do not intercept the fallback e-mail link inside the lead form itself.
-      if (clickable.classList.contains("laprix-chat-mail-link")) return;
 
       event.preventDefault();
       event.stopPropagation();
