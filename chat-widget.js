@@ -352,6 +352,44 @@
     );
   }
 
+
+  function installPageCtaLeadHandlers() {
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      const clickable = target.closest("a, button");
+      if (!clickable) return;
+
+      const text = (clickable.textContent || "").trim().toLowerCase();
+      const href = (clickable.getAttribute("href") || "").toLowerCase();
+
+      const isQuoteCta =
+        clickable.hasAttribute("data-open-laprix-lead") ||
+        text.includes("ajánlatkérés e-mailben") ||
+        text.includes("ajánlatot kérek") ||
+        text.includes("ajánlatkérés") ||
+        href.includes("subject=egyedi%20programfejleszt") ||
+        href.includes("mailto:hello@laprixaistudio.hu");
+
+      if (!isQuoteCta) return;
+
+      // Do not intercept the fallback e-mail link inside the lead form itself.
+      if (clickable.classList.contains("laprix-chat-mail-link")) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      addMessage(
+        "assistant",
+        "Megnyitottam az ajánlatkérő űrlapot. Írd le röviden, milyen programra, AI megoldásra, miniwebre vagy automatizálásra lenne szükséged."
+      );
+      openLeadForm();
+    });
+  }
+
+  installPageCtaLeadHandlers();
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", buildWidget);
   } else {
