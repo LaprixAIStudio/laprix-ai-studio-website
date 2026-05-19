@@ -4,6 +4,34 @@
   const CONTACT_EMAIL = config.contactEmail || "hello@laprixaistudio.hu";
   const PRIVACY_URL = config.privacyUrl || "/adatkezeles.html";
 
+  const ANALYTICS = config.analytics || {};
+
+  function trackLaprixEvent(eventName, params = {}) {
+    const payload = {
+      event_category: "Laprix AI ChatLead",
+      ...params,
+    };
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: eventName,
+      ...payload,
+    });
+
+    if (typeof window.gtag === "function") {
+      window.gtag("event", eventName, payload);
+
+      if (eventName === "laprix_lead_submitted" && ANALYTICS.googleAdsLeadSendTo) {
+        window.gtag("event", "conversion", {
+          send_to: ANALYTICS.googleAdsLeadSendTo,
+          value: ANALYTICS.leadValue || 1.0,
+          currency: ANALYTICS.currency || "HUF",
+        });
+      }
+    }
+  }
+
+
   const state = {
     isOpen: false,
     isBusy: false,
@@ -93,7 +121,11 @@
   }
 
   function toggleChat(forceOpen) {
+    const wasOpen = state.isOpen;
     state.isOpen = typeof forceOpen === "boolean" ? forceOpen : !state.isOpen;
+    if (!wasOpen && state.isOpen) {
+      trackLaprixEvent("laprix_chat_opened", { source: "chat_launcher_or_cta" });
+    }
     const panel = document.querySelector(".laprix-chat-panel");
     const launcher = document.querySelector(".laprix-chat-launcher");
     if (panel) panel.classList.toggle("open", state.isOpen);
@@ -105,6 +137,7 @@
     if (!cleanText || state.isBusy) return;
 
     addMessage("user", cleanText);
+    trackLaprixEvent("laprix_chat_message_sent", { message_length: cleanText.length });
     const input = document.querySelector(".laprix-chat-input");
     if (input) input.value = "";
 
@@ -147,6 +180,7 @@
   }
 
   function openLeadForm() {
+    trackLaprixEvent("laprix_lead_form_opened", { source: "chat_or_homepage_cta" });
     toggleChat(true);
     injectLeadFixStyles();
 
@@ -205,6 +239,7 @@
     );
 
     if (!API_BASE_URL) {
+      trackLaprixEvent("laprix_lead_mailto_fallback", { source: "missing_api_base_url" });
       window.location.href = `mailto:${CONTACT_EMAIL}?subject=${mailSubject}&body=${mailBody}`;
       return;
     }
@@ -221,6 +256,11 @@
         throw new Error(`HTTP ${response.status}`);
       }
 
+      trackLaprixEvent("laprix_lead_submitted", {
+        source: "ai_chat_lead_form",
+        project_type: payload.projectType || "unknown",
+      });
+
       form.reset();
       closeLeadForm();
       addMessage(
@@ -232,6 +272,7 @@
         "assistant",
         "Az ajánlatkérés mentése most nem sikerült. Megnyitom az e-mailes ajánlatkérést."
       );
+      trackLaprixEvent("laprix_lead_mailto_fallback", { source: "backend_lead_error" });
       window.location.href = `mailto:${CONTACT_EMAIL}?subject=${mailSubject}&body=${mailBody}`;
     } finally {
       setBusy(false);
