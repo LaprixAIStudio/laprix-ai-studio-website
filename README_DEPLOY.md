@@ -47,3 +47,19 @@ Rackhost DNS-ben csak azokat állítsd be, amelyeket Render mutat.
 - Ha később mérőkód kerül be, az `adatkezeles.html` szövegét frissíteni kell.
 - A FoglalóFlow marad külön termékoldal:
   `https://foglaloflow.laprixaistudio.hu`
+
+
+## V0.1 frissítés – Egyedi fejlesztési ajánlatkérés
+
+Hozzáadva a főoldalhoz:
+
+- `Egyedi fejlesztés` navigációs link
+- `#egyedi-fejlesztes` szekció
+- AI/programfejlesztési ajánlatkérő blokk
+- mailto ajánlatkérő gomb előre kitöltött e-mail sablonnal
+
+Deploy:
+1. Cseréld a GitHub repóban az `index.html` és `styles.css` fájlokat erre a verzióra.
+2. Commit:
+   `Add custom software request section`
+3. Render automatikusan redeployolja az oldalt.
