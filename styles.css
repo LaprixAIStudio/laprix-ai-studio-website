@@ -1,666 +1,390 @@
-* {
-  box-sizing: border-box;
-}
-
-:root {
-  --bg: #08111f;
-  --bg-soft: #101827;
-  --bg-card: rgba(255, 255, 255, 0.07);
-  --bg-card-strong: rgba(255, 255, 255, 0.11);
-  --text: #f4f7fb;
-  --muted: #aebbd0;
-  --line: rgba(255, 255, 255, 0.12);
-  --primary: #61dafb;
-  --primary-strong: #38bdf8;
-  --accent: #a78bfa;
-  --success: #34d399;
-  --warning: #fbbf24;
-  --radius-xl: 28px;
-  --radius-lg: 20px;
-  --shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  margin: 0;
-  background:
-    radial-gradient(circle at top left, rgba(97, 218, 251, 0.18), transparent 34rem),
-    radial-gradient(circle at 85% 8%, rgba(167, 139, 250, 0.18), transparent 30rem),
-    linear-gradient(180deg, #08111f 0%, #0b1220 44%, #070d18 100%);
-  color: var(--text);
-  min-height: 100vh;
-}
-
-a {
-  color: inherit;
-}
-
-.skip-link {
-  position: absolute;
-  left: 16px;
-  top: -80px;
-  background: #ffffff;
-  color: #08111f;
-  padding: 10px 14px;
-  border-radius: 999px;
-  z-index: 100;
-}
-
-.skip-link:focus {
-  top: 16px;
-}
-
-.container {
-  width: min(1120px, calc(100% - 40px));
-  margin: 0 auto;
-}
-
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  backdrop-filter: blur(18px);
-  background: rgba(8, 17, 31, 0.78);
-  border-bottom: 1px solid var(--line);
-}
-
-.nav {
-  min-height: 76px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
-
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
-}
-
-.brand-mark {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  color: #06101f;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  box-shadow: 0 12px 30px rgba(97, 218, 251, 0.22);
-}
-
-.brand-text {
-  display: grid;
-  line-height: 1.1;
-}
-
-.brand-text strong {
-  font-size: 1rem;
-}
-
-.brand-text small {
-  color: var(--muted);
-  font-size: 0.76rem;
-  margin-top: 4px;
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  color: var(--muted);
-  font-size: 0.94rem;
-}
-
-.nav-links a {
-  text-decoration: none;
-}
-
-.nav-links a:hover {
-  color: var(--text);
-}
-
-.section {
-  padding: 86px 0;
-}
-
-.hero {
-  padding-top: 108px;
-}
-
-.hero-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.12fr) minmax(320px, 0.88fr);
-  align-items: center;
-  gap: 52px;
-}
-
-.eyebrow {
-  color: var(--primary);
-  font-size: 0.84rem;
-  text-transform: uppercase;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  margin: 0 0 14px;
-}
-
-h1,
-h2,
-h3,
-p {
-  margin-top: 0;
-}
-
-h1 {
-  font-size: clamp(2.7rem, 7vw, 5.8rem);
-  line-height: 0.95;
-  letter-spacing: -0.075em;
-  margin-bottom: 24px;
-}
-
-h2 {
-  font-size: clamp(2rem, 4vw, 3.35rem);
-  line-height: 1.02;
-  letter-spacing: -0.055em;
-  margin-bottom: 18px;
-}
-
-h3 {
-  font-size: 1.18rem;
-  letter-spacing: -0.025em;
-  margin-bottom: 10px;
-}
-
-.lead,
-.section-heading p,
-.contact-card p {
-  color: var(--muted);
-  font-size: 1.08rem;
-  line-height: 1.72;
-}
-
-.lead {
-  max-width: 720px;
-  margin-bottom: 32px;
-}
-
-.hero-actions,
-.contact-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  align-items: center;
-}
-
-.button {
-  min-height: 48px;
-  padding: 0 20px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  font-weight: 800;
-  border: 1px solid transparent;
-}
-
-.button.primary {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  color: #06101f;
-  box-shadow: 0 18px 40px rgba(97, 218, 251, 0.18);
-}
-
-.button.secondary {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text);
-  border-color: var(--line);
-}
-
-.button:hover {
-  transform: translateY(-1px);
-}
-
-.trust-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 28px;
-}
-
-.trust-row span {
-  color: var(--muted);
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 999px;
-  padding: 9px 12px;
-  font-size: 0.88rem;
-}
-
-.hero-panel {
-  position: relative;
-  border: 1px solid var(--line);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.045)),
-    rgba(16, 24, 39, 0.72);
-  border-radius: var(--radius-xl);
-  padding: 18px;
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-
-.panel-glow {
-  position: absolute;
-  inset: auto -70px -90px auto;
-  width: 240px;
-  height: 240px;
-  background: radial-gradient(circle, rgba(97, 218, 251, 0.23), transparent 68%);
-  pointer-events: none;
-}
-
-.panel-card {
-  position: relative;
-  display: grid;
-  grid-template-columns: 16px 1fr;
-  gap: 14px;
-  padding: 18px;
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.065);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-}
-
-.panel-card + .panel-card {
-  margin-top: 12px;
-}
-
-.panel-card p {
-  color: var(--muted);
-  line-height: 1.55;
-  margin: 6px 0 0;
-  font-size: 0.94rem;
-}
-
-.status-dot {
-  width: 11px;
-  height: 11px;
-  margin-top: 5px;
-  border-radius: 50%;
-  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.055);
-}
-
-.status-dot.live {
-  background: var(--success);
-}
-
-.status-dot.build {
-  background: var(--warning);
-}
-
-.status-dot.plan {
-  background: var(--accent);
-}
-
-.section-heading {
-  max-width: 760px;
-  margin: 0 auto 34px;
-  text-align: center;
-}
-
-.section-heading.left {
-  text-align: left;
-  margin: 0;
-}
-
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.product-card,
-.roadmap-item,
-.contact-card,
-.why-item {
-  border: 1px solid var(--line);
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.18);
-}
-
-.product-card {
-  padding: 26px;
-  min-height: 360px;
-}
-
-.product-card.featured {
-  background:
-    linear-gradient(135deg, rgba(97, 218, 251, 0.14), rgba(167, 139, 250, 0.10)),
-    var(--bg-card);
-}
-
-.card-top {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 18px;
-}
-
-.tag,
-.roadmap-state {
-  display: inline-flex;
-  align-items: center;
-  min-height: 28px;
-  border-radius: 999px;
-  padding: 0 10px;
-  font-size: 0.76rem;
-  font-weight: 900;
-}
-
-.tag.live,
-.roadmap-state.live {
-  background: rgba(52, 211, 153, 0.14);
-  color: #86efac;
-}
-
-.tag.build,
-.roadmap-state.build {
-  background: rgba(251, 191, 36, 0.14);
-  color: #fde68a;
-}
-
-.tag.plan,
-.roadmap-state.plan {
-  background: rgba(167, 139, 250, 0.16);
-  color: #ddd6fe;
-}
-
-.tag.audience {
-  background: rgba(255, 255, 255, 0.09);
-  color: var(--muted);
-}
-
-.product-card p,
-.product-card li,
-.roadmap-item p,
-.why-item p,
-.site-footer p {
-  color: var(--muted);
-  line-height: 1.65;
-}
-
-.product-card ul {
-  padding-left: 18px;
-  margin: 18px 0 22px;
-}
-
-.text-link,
-.muted-link {
-  font-weight: 900;
-  text-decoration: none;
-}
-
-.text-link {
-  color: var(--primary);
-}
-
-.text-link:hover {
-  text-decoration: underline;
-}
-
-.muted-link {
-  color: var(--muted);
-}
-
-.split {
-  display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(320px, 1.15fr);
-  gap: 42px;
-  align-items: start;
-}
-
-.why-list {
-  display: grid;
-  gap: 14px;
-}
-
-.why-item {
-  display: grid;
-  grid-template-columns: 54px 1fr;
-  gap: 18px;
-  padding: 22px;
-}
-
-.why-item span {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border-radius: 14px;
-  background: rgba(97, 218, 251, 0.12);
-  color: var(--primary);
-  font-weight: 900;
-}
-
-.roadmap {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.roadmap-item {
-  padding: 22px;
-}
-
-.roadmap-item h3 {
-  margin-top: 18px;
-}
-
-.contact-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 28px;
-  align-items: center;
-  padding: 34px;
-  background:
-    linear-gradient(135deg, rgba(97, 218, 251, 0.13), rgba(167, 139, 250, 0.10)),
-    var(--bg-card-strong);
-}
-
-.site-footer {
-  border-top: 1px solid var(--line);
-  padding: 44px 0;
-  background: rgba(2, 6, 23, 0.42);
-}
-
-.footer-grid {
-  display: grid;
-  grid-template-columns: 1.15fr 1fr 0.75fr;
-  gap: 28px;
-}
-
-.site-footer a {
-  color: var(--muted);
-}
-
-.site-footer a:hover {
-  color: var(--text);
-}
-
-@media (max-width: 900px) {
-  .nav {
-    align-items: flex-start;
-    flex-direction: column;
-    padding: 16px 0;
-  }
-
-  .nav-links {
-    width: 100%;
-    overflow-x: auto;
-    padding-bottom: 4px;
-  }
-
-  .hero {
-    padding-top: 72px;
-  }
-
-  .hero-grid,
-  .split,
-  .contact-card {
-    grid-template-columns: 1fr;
-  }
-
-  .product-grid,
-  .roadmap,
-  .footer-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .product-card {
-    min-height: auto;
-  }
-
-  .contact-actions {
-    justify-content: flex-start;
-  }
-}
-
-@media (max-width: 560px) {
-  .container {
-    width: min(100% - 28px, 1120px);
-  }
-
-  .section {
-    padding: 62px 0;
-  }
-
-  .hero {
-    padding-top: 60px;
-  }
-
-  .hero-actions .button,
-  .contact-actions .button {
-    width: 100%;
-  }
-
-  .why-item {
-    grid-template-columns: 1fr;
-  }
-
-  .product-card,
-  .contact-card {
-    padding: 22px;
-  }
-}
-
-.custom-dev-section {
-  padding-top: 40px;
-}
-
-.custom-dev-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1.12fr) minmax(320px, 0.88fr);
-  gap: 22px;
-  align-items: stretch;
-  border: 1px solid var(--line);
-  background:
-    radial-gradient(circle at top left, rgba(97, 218, 251, 0.16), transparent 28rem),
-    radial-gradient(circle at bottom right, rgba(167, 139, 250, 0.14), transparent 26rem),
-    rgba(255, 255, 255, 0.065);
-  border-radius: var(--radius-xl);
-  padding: 30px;
-  box-shadow: var(--shadow);
-}
-
-.custom-dev-copy p {
-  color: var(--muted);
-  line-height: 1.72;
-  font-size: 1.04rem;
-}
-
-.custom-dev-steps {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 24px;
-}
-
-.custom-dev-steps div,
-.custom-dev-panel {
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 20px;
-}
-
-.custom-dev-steps div {
-  padding: 18px;
-}
-
-.custom-dev-steps span {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: rgba(97, 218, 251, 0.14);
-  color: var(--primary);
-  font-weight: 900;
-  margin-bottom: 14px;
-}
-
-.custom-dev-steps strong {
-  display: block;
-  margin-bottom: 8px;
-}
-
-.custom-dev-steps p {
-  margin-bottom: 0;
-  font-size: 0.92rem;
-}
-
-.custom-dev-panel {
-  padding: 24px;
-}
-
-.custom-dev-panel ul {
-  padding-left: 18px;
-  margin: 18px 0 24px;
-}
-
-.custom-dev-panel li {
-  color: var(--muted);
-  line-height: 1.7;
-}
-
-.custom-dev-panel .button {
-  width: 100%;
-}
-
-.panel-note {
-  color: var(--muted);
-  font-size: 0.9rem;
-  line-height: 1.6;
-  margin: 16px 0 0;
-}
-
-@media (max-width: 900px) {
-  .custom-dev-card,
-  .custom-dev-steps {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 560px) {
-  .custom-dev-card {
-    padding: 22px;
-  }
-}
-
-
-/* Laprix AI ChatLead V1 */
-.laprix-chat-root{position:fixed;right:18px;bottom:18px;z-index:9999;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.laprix-chat-launcher{min-height:54px;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:8px 16px 8px 8px;display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#61dafb,#a78bfa);color:#06101f;font-weight:900;cursor:pointer;box-shadow:0 20px 50px rgba(0,0,0,.32)}.laprix-chat-launcher-icon{width:38px;height:38px;border-radius:999px;display:grid;place-items:center;background:rgba(6,16,31,.16);color:#06101f;letter-spacing:-.04em}.laprix-chat-panel{position:absolute;right:0;bottom:72px;width:min(390px,calc(100vw - 28px));height:min(650px,calc(100vh - 110px));display:none;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,.16);border-radius:26px;background:radial-gradient(circle at top left,rgba(97,218,251,.20),transparent 18rem),linear-gradient(180deg,rgba(16,24,39,.98),rgba(8,17,31,.98));color:#f4f7fb;box-shadow:0 28px 90px rgba(0,0,0,.46)}.laprix-chat-panel.open{display:flex}.laprix-chat-header{padding:16px;display:flex;justify-content:space-between;gap:12px;align-items:center;border-bottom:1px solid rgba(255,255,255,.12)}.laprix-chat-header strong{display:block;font-size:1rem}.laprix-chat-status{display:block;margin-top:3px;color:#aebbd0;font-size:.82rem}.laprix-chat-close,.laprix-chat-lead-close{width:34px;height:34px;border:0;border-radius:999px;background:rgba(255,255,255,.08);color:#f4f7fb;font-size:1.3rem;cursor:pointer}.laprix-chat-messages{flex:1;overflow:auto;padding:16px}.laprix-chat-message{display:flex;margin-bottom:10px}.laprix-chat-message.user{justify-content:flex-end}.laprix-chat-bubble{max-width:86%;padding:12px 13px;border-radius:18px;line-height:1.45;white-space:pre-wrap;font-size:.94rem}.laprix-chat-message.assistant .laprix-chat-bubble{background:rgba(255,255,255,.08);color:#f4f7fb;border-top-left-radius:7px}.laprix-chat-message.user .laprix-chat-bubble{background:linear-gradient(135deg,#61dafb,#a78bfa);color:#06101f;border-top-right-radius:7px}.laprix-chat-quick{padding:0 14px 10px;display:flex;flex-wrap:wrap;gap:8px}.laprix-chat-quick button{border:1px solid rgba(255,255,255,.13);border-radius:999px;padding:8px 10px;background:rgba(255,255,255,.06);color:#f4f7fb;font-weight:800;cursor:pointer;font-size:.78rem}.laprix-chat-form{display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px;border-top:1px solid rgba(255,255,255,.12)}.laprix-chat-input,.laprix-chat-lead-form input,.laprix-chat-lead-form textarea,.laprix-chat-lead-form select{width:100%;border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:11px 12px;background:rgba(255,255,255,.08);color:#f4f7fb;outline:none}.laprix-chat-input::placeholder,.laprix-chat-lead-form textarea::placeholder{color:rgba(244,247,251,.62)}.laprix-chat-send{border:0;border-radius:14px;padding:0 14px;background:linear-gradient(135deg,#61dafb,#a78bfa);color:#06101f;font-weight:900;cursor:pointer}.laprix-chat-send:disabled{cursor:not-allowed;opacity:.62}.laprix-chat-privacy{padding:0 14px 12px;margin:0;color:#aebbd0;font-size:.76rem;line-height:1.4}.laprix-chat-privacy a{color:#61dafb}.laprix-chat-lead-form-wrap{display:none;max-height:56%;overflow:auto;padding:0 12px 12px}.laprix-chat-lead-form-wrap.open{display:block}.laprix-chat-lead-form{display:grid;gap:9px;padding:12px;border:1px solid rgba(255,255,255,.13);border-radius:20px;background:rgba(0,0,0,.18)}.laprix-chat-lead-title{display:flex;align-items:center;justify-content:space-between}.laprix-chat-lead-form label{color:#aebbd0;font-size:.82rem;display:grid;gap:5px}.laprix-chat-lead-form select option{color:#06101f}@media(max-width:560px){.laprix-chat-root{right:14px;bottom:14px}.laprix-chat-panel{position:fixed;right:14px;left:14px;bottom:78px;width:auto;height:min(650px,calc(100vh - 96px))}.laprix-chat-launcher span:last-child{display:none}.laprix-chat-launcher{padding:8px}}
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Laprix AI Studio – Magyar AI szoftverek vállalkozóknak</title>
+  <meta name="description" content="Laprix AI Studio – magyar AI szoftverek vállalkozóknak, alkotóknak és helyi szolgáltatóknak. FoglalóFlow, PostPilot HU, Kiadvia, saját vagy meglévő weboldal készítése és kezelése, egyedi AI/programfejlesztés és további digitális termékek." />
+  <meta name="theme-color" content="#101827" />
+  <meta property="og:title" content="Laprix AI Studio" />
+  <meta property="og:description" content="Magyar AI szoftverek vállalkozóknak, alkotóknak és helyi szolgáltatóknak." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://laprixaistudio.hu" />
+  <meta property="og:image" content="https://laprixaistudio.hu/assets/laprix-cover.jpg" />
+  <meta property="og:image:alt" content="Laprix AI Studio – AI megoldások vállalkozóknak" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://laprixaistudio.hu/assets/laprix-cover.jpg" />
+  <link rel="canonical" href="https://laprixaistudio.hu" />
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <link rel="stylesheet" href="/styles.css" />
+  <!-- Google tag (gtag.js) – Laprix AI Studio / Google Ads -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18144333266"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'AW-18144333266');
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Ugrás a tartalomra</a>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/" aria-label="Laprix AI Studio főoldal">
+        <img class="brand-logo-img" src="/assets/laprix-logo.png" alt="Laprix AI Studio logó" width="40" height="40" />
+        <span class="brand-text">
+          <strong>Laprix AI Studio</strong>
+          <small>AI szoftverportfólió</small>
+        </span>
+      </a>
+
+      <nav class="nav-links" aria-label="Fő navigáció">
+        <a href="#termekek">Termékek</a>
+        <a href="#miert">Miért mi?</a>
+        <a href="#egyedi-fejlesztes">Egyedi fejlesztés</a>
+        <a href="#fejlesztesek">Fejlesztések</a>
+        <a href="#kapcsolat">Kapcsolat</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero section">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Magyar AI termékek egy portfólióban</p>
+          <h1>AI szoftverek vállalkozóknak, alkotóknak és helyi szolgáltatóknak.</h1>
+          <p class="lead">
+            A Laprix AI Studio olyan digitális eszközöket épít, amelyek segítenek időt spórolni,
+            ügyfeleket kezelni, tartalmat készíteni, saját weboldalt építeni, meglévő weboldalt kezelni és stabilabb online jelenlétet kialakítani.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#termekek">Termékek megtekintése</a>
+            <a class="button secondary" href="mailto:hello@laprixaistudio.hu">Kapcsolatfelvétel</a>
+          </div>
+
+          <figure class="hero-brand-cover" aria-label="Laprix AI Studio borítókép">
+            <img src="/assets/laprix-cover.jpg" alt="Laprix AI Studio – AI megoldások vállalkozóknak" loading="eager" />
+          </figure>
+
+          <div class="trust-row" aria-label="Fő bizalmi elemek">
+            <span>Magyar piacra szabva</span>
+            <span>AI-alapú SaaS termékek</span>
+            <span>Élesben futó megoldások</span>
+          </div>
+        </div>
+
+        <aside class="hero-panel" aria-label="Laprix AI Studio termékállapotok">
+          <div class="panel-glow"></div>
+          <div class="panel-card active">
+            <span class="status-dot live"></span>
+            <div>
+              <strong>FoglalóFlow</strong>
+              <p>Éles V1: online foglalás, miniweb, e-mail és Google Naptár.</p>
+            </div>
+          </div>
+          <div class="panel-card active">
+            <span class="status-dot live"></span>
+            <div>
+              <strong>PostPilot HU</strong>
+              <p>AI posztgenerálás magyar vállalkozóknak és alkotóknak.</p>
+            </div>
+          </div>
+          <div class="panel-card build">
+            <span class="status-dot build"></span>
+            <div>
+              <strong>Kiadvia</strong>
+              <p>Készülő AI kiadvány- és nyomdai anyag készítő.</p>
+            </div>
+          </div>
+          <div class="panel-card plan">
+            <span class="status-dot plan"></span>
+            <div>
+              <strong>Következő termékek</strong>
+              <p>ÉletAdmin AI, HelyiMester / SzakiTér és új Laprix modulok.</p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="termekek" class="section products-section">
+      <div class="container">
+        <div class="section-heading">
+          <p class="eyebrow">Termékportfólió</p>
+          <h2>Nem egyetlen oldal: épülő AI szoftvercsalád.</h2>
+          <p>
+            A termékek külön célokra készülnek, de ugyanarra az alapelvre épülnek:
+            legyenek egyszerűek, hasznosak és magyar vállalkozói környezetben is használhatók.
+          </p>
+        </div>
+
+        <div class="product-grid">
+          <article class="product-card featured">
+            <div class="card-top">
+              <span class="tag live">Éles</span>
+              <span class="tag audience">Szolgáltatóknak</span>
+            </div>
+            <h3>FoglalóFlow</h3>
+            <p>
+              Online időpontfoglalás, saját miniweb, automata e-mail értesítések és Google Naptár
+              szinkron helyi szolgáltatóknak.
+            </p>
+            <ul>
+              <li>Körmösöknek, fodrászoknak, masszőröknek</li>
+              <li>Vendégoldali foglalás és lemondás</li>
+              <li>Belső admin és adatbekérő folyamat</li>
+            </ul>
+            <a class="text-link" href="https://foglaloflow.laprixaistudio.hu">FoglalóFlow megnyitása</a>
+          </article>
+
+          <article class="product-card">
+            <div class="card-top">
+              <span class="tag live">Éles / aktív</span>
+              <span class="tag audience">Tartalom</span>
+            </div>
+            <h3>PostPilot HU</h3>
+            <p>
+              AI-alapú magyar posztgenerátor vállalkozóknak, tartalomkészítőknek és magánszemélyeknek.
+            </p>
+            <ul>
+              <li>Platformhoz igazított posztötletek</li>
+              <li>Magyar nyelvű marketing szövegek</li>
+              <li>Szöveg- és képgenerálási csomaglogika</li>
+            </ul>
+            <a class="text-link" href="https://postpilot-hu-frontend.onrender.com">PostPilot HU megnyitása</a>
+          </article>
+
+
+          <article class="product-card">
+            <div class="card-top">
+              <span class="tag live">Szolgáltatás</span>
+              <span class="tag audience">Weboldal</span>
+            </div>
+            <h3>Saját vagy meglévő weboldal készítése és kezelése</h3>
+            <p>
+              Vállaljuk új weboldal, landing oldal vagy szolgáltatói bemutatkozó oldal készítését,
+              valamint már meglévő, nem Laprixos weboldalak kezelését és frissítését is.
+            </p>
+            <ul>
+              <li>új, modern és mobilbarát weboldal készítése</li>
+              <li>meglévő weboldal frissítése, tartalomkezelése és kisebb javításai</li>
+              <li>igény szerint folyamatos kezelés, karbantartás és alap SEO előkészítés</li>
+            </ul>
+            <a class="text-link" href="#egyedi-fejlesztes">Weboldal készítést vagy kezelést kérek</a>
+          </article>
+
+          <article class="product-card">
+            <div class="card-top">
+              <span class="tag build">Fejlesztés alatt</span>
+              <span class="tag audience">Kiadvány</span>
+            </div>
+            <h3>Kiadvia</h3>
+            <p>
+              Készülő AI kiadványkészítő szórólapokhoz, plakátokhoz, étlapokhoz,
+              árlistákhoz és nyomdai leadási anyagokhoz.
+            </p>
+            <ul>
+              <li>Sablon-alapú szerkesztés</li>
+              <li>Nyomdai méret- és exportlogika</li>
+              <li>PDF / PPTX irányú munkafolyamatok</li>
+            </ul>
+            <span class="muted-link">Hamarosan</span>
+          </article>
+
+          <article class="product-card">
+            <div class="card-top">
+              <span class="tag plan">Tervezés alatt</span>
+              <span class="tag audience">Új ötletek</span>
+            </div>
+            <h3>Következő Laprix termékek</h3>
+            <p>
+              ÉletAdmin AI, HelyiMester / SzakiTér és további eszközök személyes,
+              családi és helyi vállalkozói adminisztrációhoz.
+            </p>
+            <ul>
+              <li>Családi dokumentum- és garanciakezelés</li>
+              <li>Helyi szolgáltatói piactér irány</li>
+              <li>Új AI asszisztens modulok</li>
+            </ul>
+            <span class="muted-link">Előkészítés alatt</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="miert" class="section why-section">
+      <div class="container split">
+        <div class="section-heading left">
+          <p class="eyebrow">Miért Laprix AI Studio?</p>
+          <h2>Gyakorlati problémákra épített AI megoldások.</h2>
+          <p>
+            Nem általános demókat készítünk, hanem olyan termékeket, amelyek valódi munkafolyamatokat
+            segítenek: foglalás, ügyfélkezelés, tartalomkészítés, saját vagy meglévő weboldal készítése és kezelése, kiadványkészítés és adminisztráció.
+          </p>
+        </div>
+
+        <div class="why-list">
+          <div class="why-item">
+            <span>01</span>
+            <div>
+              <h3>Magyar vállalkozói környezet</h3>
+              <p>Magyar nyelvű szövegek, hazai szolgáltatói helyzetek és egyszerű használhatóság.</p>
+            </div>
+          </div>
+          <div class="why-item">
+            <span>02</span>
+            <div>
+              <h3>Termékportfólió szemlélet</h3>
+              <p>Egy márka alatt több, egymást erősítő AI szoftver készül.</p>
+            </div>
+          </div>
+          <div class="why-item">
+            <span>03</span>
+            <div>
+              <h3>Folyamatos fejlesztés</h3>
+              <p>A termékek valós használatból, ügyfélfolyamatokból és visszajelzésekből fejlődnek.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="egyedi-fejlesztes" class="section custom-dev-section">
+      <div class="container custom-dev-card">
+        <div class="custom-dev-copy">
+          <p class="eyebrow">Egyedi AI / programfejlesztés</p>
+          <h2>Új weboldal, meglévő weboldal kezelése, AI megoldás vagy egyedi program kell?</h2>
+          <p>
+            Ha új weboldalra, landing oldalra, meglévő weboldalad rendszeres kezelésére,
+            tartalomfrissítésére, kisebb javításaira, vagy belső munkafolyamatot segítő
+            egyedi digitális megoldásra van szükséged, írd le röviden, mire lenne szükséged. Átnézzük az igényt,
+            javaslunk megoldási irányt, majd adunk egy előzetes ár- és megvalósíthatósági ajánlatot.
+          </p>
+
+          <div class="custom-dev-steps" aria-label="Egyedi fejlesztési folyamat">
+            <div>
+              <span>1</span>
+              <strong>Elmondod az igényt</strong>
+              <p>Mi a probléma, kik használnák, milyen eredményt vársz?</p>
+            </div>
+            <div>
+              <span>2</span>
+              <strong>Átnézzük a lehetőségeket</strong>
+              <p>Megnézzük, hogy webapp, AI modul, automatizmus vagy belső eszköz kell-e.</p>
+            </div>
+            <div>
+              <span>3</span>
+              <strong>Ajánlatot adunk</strong>
+              <p>Előzetes scope, várható díj, ütemezés és következő lépések.</p>
+            </div>
+          </div>
+        </div>
+
+        <aside class="custom-dev-panel">
+          <h3>Milyen fejlesztések jöhetnek szóba?</h3>
+          <ul>
+            <li>egyedi AI asszisztens vagy chatbot</li>
+            <li>időpontfoglaló, ügyfélkezelő vagy admin rendszer</li>
+            <li>új weboldal, landing oldal vagy szolgáltatói bemutatkozó oldal készítése</li>
+            <li>meglévő, nem Laprixos weboldal kezelése, frissítése és kisebb javítása</li>
+            <li>automatizált e-mail vagy dokumentum folyamat</li>
+            <li>belső céges nyilvántartó vagy munkaszervező eszköz</li>
+            <li>AI szöveg-, kép- vagy adatfeldolgozó modul</li>
+          </ul>
+          <a
+            class="button primary"
+            href="mailto:hello@laprixaistudio.hu?subject=Egyedi%20programfejleszt%C3%A9si%20aj%C3%A1nlatk%C3%A9r%C3%A9s&body=Szia%20Laprix%20AI%20Studio%2C%0A%0AEgyedi%20programfejleszt%C3%A9s%20miatt%20%C3%ADrok.%0A%0AR%C3%B6viden%20erre%20lenne%20sz%C3%BCks%C3%A9gem%20%28%C3%BAj%20weboldal%20%2F%20megl%C3%A9v%C5%91%20weboldal%20kezel%C3%A9se%20%2F%20AI%20megold%C3%A1s%20%2F%20egyedi%20program%29%3A%0A%0AKik%20haszn%C3%A1ln%C3%A1k%3A%0A%0AFontos%20funkci%C3%B3k%3A%0A%0AHat%C3%A1rid%C5%91%20vagy%20priorit%C3%A1s%3A%0A%0AEl%C3%A9rhet%C5%91s%C3%A9gem%3A%0A"
+          >
+            Ajánlatkérés e-mailben
+          </a>
+          <p class="panel-note">
+            Az első egyeztetés célja az igény pontosítása. Meglévő weboldalnál átnézzük,
+            milyen rendszerben készült és pontosan milyen kezelésre van szükség. A végleges ár a feladatoktól,
+            integrációktól és határidőtől függ.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+
+    <section id="fejlesztesek" class="section roadmap-section">
+      <div class="container">
+        <div class="section-heading">
+          <p class="eyebrow">Irányok</p>
+          <h2>Éles termékek, készülő modulok, következő ötletek.</h2>
+        </div>
+
+        <div class="roadmap">
+          <div class="roadmap-item">
+            <span class="roadmap-state live">Most</span>
+            <h3>FoglalóFlow V1</h3>
+            <p>Éles időpontfoglaló és miniweb rendszer helyi szolgáltatóknak.</p>
+          </div>
+          <div class="roadmap-item">
+            <span class="roadmap-state live">Aktív</span>
+            <h3>PostPilot HU</h3>
+            <p>Magyar AI posztgenerálás és tartalomsegítő termék.</p>
+          </div>
+          <div class="roadmap-item">
+            <span class="roadmap-state build">Következő</span>
+            <h3>Kiadvia</h3>
+            <p>AI kiadványkészítés és nyomdai exportfolyamatok.</p>
+          </div>
+          <div class="roadmap-item">
+            <span class="roadmap-state plan">Később</span>
+            <h3>Új Laprix termékek</h3>
+            <p>ÉletAdmin AI, HelyiMester / SzakiTér és további szoftverek.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="kapcsolat" class="section contact-section">
+      <div class="container contact-card">
+        <div>
+          <p class="eyebrow">Kapcsolat</p>
+          <h2>Érdekel valamelyik Laprix AI Studio termék?</h2>
+          <p>
+            Írj e-mailt, vagy használd a jobb alsó sarokban lévő AI chat asszisztenst, ha termékkel,
+            együttműködéssel, új weboldal készítéssel, meglévő weboldal kezelésével, szolgáltatói miniwebbel vagy AI szoftveres megoldással kapcsolatban keresnél minket.
+          </p>
+        </div>
+        <div class="contact-actions">
+          <a class="button primary" href="mailto:hello@laprixaistudio.hu">hello@laprixaistudio.hu</a>
+          <a class="button secondary" href="https://foglaloflow.laprixaistudio.hu">FoglalóFlow</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="footer-brand-row">
+          <img src="/assets/laprix-logo.png" alt="" width="34" height="34" />
+          <strong>Laprix AI Studio</strong>
+        </div>
+        <p>Magyar AI szoftverek vállalkozóknak, alkotóknak és helyi szolgáltatóknak.</p>
+      </div>
+      <div>
+        <strong>Üzemeltető</strong>
+        <p>Sarang István János e.v.<br />8624 Balatonszárszó, Szóládi utca 29.<br />Adószám: 92012958-1-34</p>
+      </div>
+      <div>
+        <strong>Linkek</strong>
+        <p>
+          <a href="/adatkezeles.html">Adatkezelési tájékoztató</a><br />
+          <a href="mailto:hello@laprixaistudio.hu">Kapcsolat</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/chat-config.js"></script>
+  <script src="/chat-widget.js"></script>
+</body>
+</html>
