@@ -297,7 +297,7 @@
 
     const mailtoSubject = encodeURIComponent("Egyedi programfejlesztési ajánlatkérés");
     const mailtoBody = encodeURIComponent(
-      "Szia Laprix AI Studio,\n\nEgyedi programfejlesztés miatt írok.\n\nRöviden erre lenne szükségem:\n\nKik használnák:\n\nFontos funkciók:\n\nHatáridő vagy prioritás:\n\nElérhetőségem:\n"
+      "Szia Laprix AI Studio,\n\nAjánlatot szeretnék kérni.\n\nMire van szükségem: új weboldal / meglévő weboldal kezelése / landing oldal / AI megoldás / egyedi program\n\nRövid leírás:\n\nJelenlegi weboldal linkje, ha van:\n\nFontos funkciók vagy feladatok:\n\nHatáridő vagy prioritás:\n\nElérhetőségem:\n"
     );
 
     panel.innerHTML = `
@@ -330,7 +330,7 @@
             <button type="button" class="laprix-chat-lead-close" aria-label="Ajánlatkérő bezárása">×</button>
           </div>
           <p class="laprix-chat-lead-helper">
-            Írd le röviden, milyen programra, AI megoldásra, miniwebre vagy automatizálásra lenne szükséged.
+            Írd le röviden, mire lenne szükséged: új weboldalra, meglévő weboldal kezelésére, AI megoldásra, miniwebre, automatizálásra vagy egyedi programra.
           </p>
           <label>Név*<input name="name" required maxlength="120" /></label>
           <label>E-mail*<input name="email" required type="email" maxlength="160" /></label>
@@ -338,14 +338,17 @@
           <label>Telefon<input name="phone" maxlength="80" /></label>
           <label>Fejlesztés típusa
             <select name="projectType">
-              <option value="Egyedi AI/programfejlesztés">Egyedi AI/programfejlesztés</option>
+              <option value="Weboldal készítés">Új weboldal készítés</option>
+              <option value="Meglévő weboldal kezelése">Meglévő weboldal kezelése / frissítése</option>
+              <option value="Landing oldal / bemutatkozó oldal">Landing oldal / bemutatkozó oldal</option>
               <option value="FoglalóFlow / miniweb / foglalás">FoglalóFlow / miniweb / foglalás</option>
+              <option value="Egyedi AI/programfejlesztés">Egyedi AI/programfejlesztés</option>
               <option value="Automatizálás">Automatizálás</option>
               <option value="Belső admin rendszer">Belső admin rendszer</option>
               <option value="Egyéb">Egyéb</option>
             </select>
           </label>
-          <label>Rövid leírás*<textarea name="message" required maxlength="1800" rows="4" placeholder="Mit szeretnél megoldani? Kik használnák? Mi lenne a fő cél?"></textarea></label>
+          <label>Rövid leírás*<textarea name="message" required maxlength="1800" rows="4" placeholder="Példa: új weboldalt szeretnék / meglévő weboldalam kezelését kérem / AI megoldás kell. Írd le röviden a célt, a jelenlegi helyzetet és a fontos funkciókat."></textarea></label>
           <button class="button primary" type="submit">Ajánlatkérés elküldése</button>
           <a class="laprix-chat-mail-link" href="mailto:${CONTACT_EMAIL}?subject=${mailtoSubject}&body=${mailtoBody}">Inkább e-mailben írok</a>
         </form>
@@ -377,7 +380,7 @@
         if (button.dataset.lead === "true") {
           addMessage(
             "assistant",
-            "Rendben. Megnyitottam az ajánlatkérő űrlapot. Írd le röviden, mire lenne szükséged, és e-mailben jelentkezünk."
+            "Rendben. Megnyitottam az ajánlatkérő űrlapot. Írd le röviden, hogy weboldal készítésről, meglévő weboldal kezeléséről vagy más digitális megoldásról van szó, és e-mailben jelentkezünk."
           );
           openLeadForm();
           return;
@@ -389,7 +392,7 @@
 
     addMessage(
       "assistant",
-      "Szia! A Laprix AI Studio asszisztense vagyok. Kérdezhetsz a FoglalóFlow-ról, PostPilot HU-ról, Kiadviáról vagy egyedi AI/programfejlesztésről."
+      "Szia! A Laprix AI Studio asszisztense vagyok. Kérdezhetsz a FoglalóFlow-ról, PostPilot HU-ról, Kiadviáról, weboldal készítésről, meglévő weboldal kezeléséről vagy egyedi AI/programfejlesztésről."
     );
   }
 
@@ -425,7 +428,7 @@
 
       addMessage(
         "assistant",
-        "Megnyitottam az ajánlatkérő űrlapot. Írd le röviden, milyen programra, AI megoldásra, miniwebre vagy automatizálásra lenne szükséged."
+        "Megnyitottam az ajánlatkérő űrlapot. Írd le röviden, mire lenne szükséged: új weboldalra, meglévő weboldal kezelésére, AI megoldásra, miniwebre, automatizálásra vagy egyedi programra."
       );
       openLeadForm();
     });
