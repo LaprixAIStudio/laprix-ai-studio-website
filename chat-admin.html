@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Laprix Chat Admin – beszélgetések</title>
+  <title>Laprix Chat Admin – emberi átvétel</title>
   <style>
     :root {
       color-scheme: dark;
@@ -17,6 +17,7 @@
       --accent2: #9d7cff;
       --ok: #34d399;
       --warn: #facc15;
+      --danger: #fb7185;
     }
     * { box-sizing: border-box; }
     body {
@@ -37,180 +38,51 @@
       backdrop-filter: blur(18px);
     }
     .wrap { width: min(1280px, calc(100% - 32px)); margin: 0 auto; }
-    .top {
-      display: flex;
-      gap: 18px;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 74px;
-    }
-    h1 { font-size: clamp(1.25rem, 3vw, 2rem); margin: 0; letter-spacing: -.04em; }
+    .top { display:flex; gap:18px; align-items:center; justify-content:space-between; min-height:74px; }
+    h1 { font-size: clamp(1.25rem, 3vw, 2rem); margin:0; letter-spacing:-.04em; }
     .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.05);
-      color: var(--muted);
-      font-size: .86rem;
+      display:inline-flex; align-items:center; gap:8px; padding:7px 10px; border-radius:999px;
+      border:1px solid var(--line); background:rgba(255,255,255,.05); color:var(--muted);
+      font-size:.86rem; text-decoration:none;
     }
-    .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--ok); }
-    .login {
-      display: grid;
-      gap: 10px;
-      grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr) auto;
-      padding: 18px 0;
-      border-top: 1px solid var(--line);
+    .dot { width:8px; height:8px; border-radius:999px; background:var(--ok); }
+    .dot.human { background:var(--warn); }
+    .login { display:grid; gap:10px; grid-template-columns:minmax(220px,1fr) minmax(220px,1fr) auto; padding:18px 0; border-top:1px solid var(--line); }
+    input, textarea, button {
+      min-height:42px; border-radius:14px; border:1px solid var(--line); background:rgba(15,23,42,.78);
+      color:var(--text); padding:0 12px; font:inherit;
     }
-    input, button, select {
-      min-height: 42px;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: rgba(15, 23, 42, .78);
-      color: var(--text);
-      padding: 0 12px;
-      font: inherit;
-    }
-    button {
-      cursor: pointer;
-      font-weight: 800;
-      border: 0;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #06111f;
-    }
-    main { padding: 26px 0 46px; }
-    .grid {
-      display: grid;
-      grid-template-columns: 390px 1fr;
-      gap: 18px;
-      align-items: start;
-    }
-    .panel {
-      border: 1px solid var(--line);
-      background: var(--panel);
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 22px 60px rgba(0,0,0,.28);
-    }
-    .panel-head {
-      padding: 16px;
-      border-bottom: 1px solid var(--line);
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-    }
-    .panel-head strong { font-size: 1.02rem; }
-    .sessions {
-      max-height: calc(100vh - 210px);
-      overflow: auto;
-    }
-    .session-item {
-      width: 100%;
-      display: block;
-      text-align: left;
-      padding: 14px 16px;
-      border: 0;
-      border-bottom: 1px solid var(--line);
-      border-radius: 0;
-      background: transparent;
-      color: var(--text);
-      cursor: pointer;
-    }
-    .session-item:hover, .session-item.active { background: rgba(56, 217, 255, .08); }
-    .session-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 8px;
-      font-weight: 900;
-    }
-    .session-meta, .session-snippet {
-      color: var(--muted);
-      font-size: .82rem;
-      line-height: 1.38;
-    }
-    .lead-pill {
-      color: #04111f;
-      background: var(--warn);
-      border-radius: 999px;
-      padding: 4px 8px;
-      font-size: .74rem;
-      font-weight: 900;
-      white-space: nowrap;
-    }
-    .messages {
-      padding: 18px;
-      min-height: 420px;
-      max-height: calc(100vh - 210px);
-      overflow: auto;
-    }
-    .empty {
-      color: var(--muted);
-      padding: 28px;
-      text-align: center;
-    }
-    .msg {
-      max-width: 780px;
-      margin: 0 0 12px;
-      padding: 13px 15px;
-      border-radius: 18px;
-      border: 1px solid var(--line);
-      background: var(--panel2);
-      white-space: pre-wrap;
-      line-height: 1.48;
-    }
-    .msg.user {
-      margin-left: auto;
-      background: rgba(56, 217, 255, .10);
-      border-color: rgba(56, 217, 255, .22);
-    }
-    .msg.assistant {
-      margin-right: auto;
-      background: rgba(157, 124, 255, .10);
-      border-color: rgba(157, 124, 255, .22);
-    }
-    .msg.system {
-      margin-left: auto;
-      margin-right: auto;
-      text-align: center;
-      background: rgba(250, 204, 21, .10);
-      border-color: rgba(250, 204, 21, .24);
-      color: #fff4bf;
-    }
-    .msg small {
-      display: block;
-      color: var(--muted);
-      margin-bottom: 6px;
-      font-size: .75rem;
-    }
-    .session-details {
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--line);
-      color: var(--muted);
-      font-size: .88rem;
-      line-height: 1.5;
-    }
-    .session-details a { color: var(--accent); }
-    .toolbar {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .secondary {
-      background: rgba(255,255,255,.07);
-      color: var(--text);
-      border: 1px solid var(--line);
-    }
-    @media (max-width: 920px) {
-      .grid { grid-template-columns: 1fr; }
-      .login { grid-template-columns: 1fr; }
-      .sessions, .messages { max-height: none; }
-    }
+    textarea { min-height:96px; padding:12px; resize:vertical; line-height:1.45; }
+    button { cursor:pointer; font-weight:800; border:0; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#06111f; }
+    button.secondary { background:rgba(255,255,255,.07); color:var(--text); border:1px solid var(--line); }
+    button.danger { background:rgba(251,113,133,.18); color:#ffd6dd; border:1px solid rgba(251,113,133,.32); }
+    main { padding:26px 0 46px; }
+    .grid { display:grid; grid-template-columns:390px 1fr; gap:18px; align-items:start; }
+    .panel { border:1px solid var(--line); background:var(--panel); border-radius:24px; overflow:hidden; box-shadow:0 22px 60px rgba(0,0,0,.28); }
+    .panel-head { padding:16px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; }
+    .sessions { max-height:calc(100vh - 210px); overflow:auto; }
+    .session-item { width:100%; display:block; text-align:left; padding:14px 16px; border:0; border-bottom:1px solid var(--line); border-radius:0; background:transparent; color:var(--text); cursor:pointer; }
+    .session-item:hover,.session-item.active { background:rgba(56,217,255,.08); }
+    .session-title { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; font-weight:900; }
+    .session-meta,.session-snippet { color:var(--muted); font-size:.82rem; line-height:1.38; }
+    .lead-pill,.human-pill { color:#04111f; border-radius:999px; padding:4px 8px; font-size:.72rem; font-weight:950; white-space:nowrap; }
+    .lead-pill { background:var(--warn); }
+    .human-pill { background:var(--accent); }
+    .messages { padding:18px; min-height:420px; max-height:calc(100vh - 360px); overflow:auto; }
+    .empty { color:var(--muted); padding:28px; text-align:center; }
+    .msg { max-width:780px; margin:0 0 12px; padding:13px 15px; border-radius:18px; border:1px solid var(--line); background:var(--panel2); white-space:pre-wrap; line-height:1.48; }
+    .msg.user { margin-left:auto; background:rgba(56,217,255,.10); border-color:rgba(56,217,255,.22); }
+    .msg.assistant { margin-right:auto; background:rgba(157,124,255,.10); border-color:rgba(157,124,255,.22); }
+    .msg.human { margin-right:auto; background:linear-gradient(135deg,rgba(56,217,255,.18),rgba(157,124,255,.14)); border-color:rgba(56,217,255,.30); }
+    .msg.system { margin-left:auto; margin-right:auto; text-align:center; background:rgba(250,204,21,.10); border-color:rgba(250,204,21,.24); color:#fff4bf; }
+    .msg small { display:block; color:var(--muted); margin-bottom:6px; font-size:.75rem; }
+    .session-details { padding:14px 18px; border-bottom:1px solid var(--line); color:var(--muted); font-size:.88rem; line-height:1.5; }
+    .session-details a { color:var(--accent); }
+    .toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .reply-box { padding:16px; border-top:1px solid var(--line); display:grid; gap:10px; }
+    .reply-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    .hint { color:var(--muted); font-size:.84rem; line-height:1.4; }
+    @media (max-width:920px){ .grid{grid-template-columns:1fr}.login{grid-template-columns:1fr}.sessions,.messages{max-height:none}.reply-actions button{width:100%} }
   </style>
 </head>
 <body>
@@ -219,14 +91,13 @@
       <div class="top">
         <div>
           <h1>Laprix Chat Admin</h1>
-          <div class="badge"><span class="dot"></span> V1.22 megtekintő mód – emberi átvétel még nincs bekapcsolva</div>
+          <div class="badge"><span class="dot"></span> V1.23 – emberi átvétel alapverzió</div>
         </div>
         <div class="toolbar">
           <button class="secondary" id="refreshBtn">Frissítés</button>
           <a class="badge" href="/" style="text-decoration:none">← Főoldal</a>
         </div>
       </div>
-
       <div class="login">
         <input id="apiBase" placeholder="Backend API URL, pl. https://laprix-ai-chat-backend.onrender.com" />
         <input id="adminToken" type="password" placeholder="Admin token" />
@@ -242,19 +113,27 @@
           <strong>Beszélgetések</strong>
           <span id="sessionCount" class="badge">0 db</span>
         </div>
-        <div id="sessions" class="sessions">
-          <div class="empty">Add meg a backend URL-t és az admin tokent.</div>
-        </div>
+        <div id="sessions" class="sessions"><div class="empty">Add meg a backend URL-t és az admin tokent.</div></div>
       </section>
 
       <section class="panel">
         <div class="panel-head">
           <strong id="activeTitle">Beszélgetés részletei</strong>
-          <span class="badge" id="autoRefreshState">auto frissítés: 10 mp</span>
+          <div class="toolbar">
+            <span class="badge" id="modeBadge">mód: -</span>
+            <button id="takeoverBtn">Átveszem</button>
+            <button class="secondary" id="releaseBtn">Visszaadom az AI-nak</button>
+          </div>
         </div>
         <div id="sessionDetails" class="session-details">Válassz egy beszélgetést bal oldalt.</div>
-        <div id="messages" class="messages">
-          <div class="empty">Nincs kiválasztott beszélgetés.</div>
+        <div id="messages" class="messages"><div class="empty">Nincs kiválasztott beszélgetés.</div></div>
+        <div class="reply-box">
+          <div class="hint">Ha átvetted a beszélgetést, ide írhatsz választ. A látogató chatjében „Laprix munkatárs” válaszként jelenik meg.</div>
+          <textarea id="replyText" placeholder="Válasz a látogatónak..."></textarea>
+          <div class="reply-actions">
+            <button class="secondary" id="clearReplyBtn">Törlés</button>
+            <button id="sendReplyBtn">Válasz küldése</button>
+          </div>
         </div>
       </section>
     </div>
@@ -272,8 +151,11 @@
     const detailsEl = document.getElementById("sessionDetails");
     const sessionCountEl = document.getElementById("sessionCount");
     const activeTitleEl = document.getElementById("activeTitle");
+    const modeBadge = document.getElementById("modeBadge");
+    const replyText = document.getElementById("replyText");
 
     let activeSessionId = "";
+    let activeSessionMode = "ai";
     let sessions = [];
 
     apiBaseInput.value = localStorage.getItem("laprix_admin_api_base") || defaultApi;
@@ -281,34 +163,32 @@
 
     function esc(value) {
       return String(value || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+        .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;").replaceAll("'","&#039;");
     }
-
-    function getApiBase() {
-      return apiBaseInput.value.replace(/\/$/, "").trim();
-    }
-
-    function getToken() {
-      return tokenInput.value.trim();
-    }
+    function getApiBase(){ return apiBaseInput.value.replace(/\/$/,"").trim(); }
+    function getToken(){ return tokenInput.value.trim(); }
 
     async function apiGet(path) {
-      const apiBase = getApiBase();
-      const token = getToken();
-      if (!apiBase || !token) throw new Error("Hiányzik az API URL vagy admin token.");
-
-      const response = await fetch(apiBase + path, {
-        headers: { Authorization: "Bearer " + token },
-      });
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error("HTTP " + response.status + " – " + text.slice(0, 180));
-      }
+      const response = await fetch(getApiBase() + path, { headers: { Authorization: "Bearer " + getToken() } });
+      if (!response.ok) throw new Error("HTTP " + response.status + " – " + (await response.text()).slice(0,180));
       return response.json();
+    }
+    async function apiPost(path, payload = {}) {
+      const response = await fetch(getApiBase() + path, {
+        method: "POST",
+        headers: { Authorization: "Bearer " + getToken(), "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error("HTTP " + response.status + " – " + (await response.text()).slice(0,180));
+      return response.json();
+    }
+
+    function updateModeBadge(mode) {
+      activeSessionMode = mode === "human" ? "human" : "ai";
+      modeBadge.innerHTML = activeSessionMode === "human"
+        ? '<span class="dot human"></span> emberi átvétel'
+        : '<span class="dot"></span> AI válaszol';
     }
 
     function renderSessions() {
@@ -317,27 +197,25 @@
         sessionsEl.innerHTML = '<div class="empty">Még nincs mentett beszélgetés.</div>';
         return;
       }
-
       sessionsEl.innerHTML = sessions.map((s) => {
         const title = s.leadSubmitted
           ? `${esc(s.leadName || "Ajánlatkérő")} ${s.leadEmail ? " – " + esc(s.leadEmail) : ""}`
-          : esc((s.lastUserMessage || "Névtelen beszélgetés").slice(0, 64));
-
+          : esc((s.lastUserMessage || "Névtelen beszélgetés").slice(0,64));
         return `
           <button class="session-item ${s.sessionId === activeSessionId ? "active" : ""}" data-session-id="${esc(s.sessionId)}">
             <div class="session-title">
               <span>${title}</span>
-              ${s.leadSubmitted ? '<span class="lead-pill">AJÁNLAT</span>' : ''}
+              <span>
+                ${s.sessionMode === "human" ? '<span class="human-pill">EMBER</span>' : ''}
+                ${s.leadSubmitted ? '<span class="lead-pill">AJÁNLAT</span>' : ''}
+              </span>
             </div>
             <div class="session-meta">${esc(s.lastAt || "")} · ${Number(s.messageCount || 0)} üzenet · ${esc(s.projectType || "")}</div>
-            <div class="session-snippet">${esc((s.lastAssistantReply || s.lastUserMessage || "").slice(0, 120))}</div>
+            <div class="session-snippet">${esc((s.lastAdminReply || s.lastAssistantReply || s.lastUserMessage || "").slice(0,120))}</div>
           </button>
         `;
       }).join("");
-
-      document.querySelectorAll(".session-item").forEach((btn) => {
-        btn.addEventListener("click", () => loadSession(btn.dataset.sessionId));
-      });
+      document.querySelectorAll(".session-item").forEach((btn) => btn.addEventListener("click", () => loadSession(btn.dataset.sessionId)));
     }
 
     async function loadSessions() {
@@ -345,9 +223,7 @@
         const data = await apiGet("/api/admin/chat-sessions?limit=100");
         sessions = data.items || [];
         renderSessions();
-        if (activeSessionId) {
-          loadSession(activeSessionId, true);
-        }
+        if (activeSessionId) loadSession(activeSessionId, true);
       } catch (error) {
         sessionsEl.innerHTML = `<div class="empty">Hiba: ${esc(error.message)}</div>`;
       }
@@ -356,14 +232,13 @@
     async function loadSession(sessionId, silent = false) {
       if (!sessionId) return;
       activeSessionId = sessionId;
-      if (!silent) {
-        messagesEl.innerHTML = '<div class="empty">Betöltés...</div>';
-      }
+      if (!silent) messagesEl.innerHTML = '<div class="empty">Betöltés...</div>';
       renderSessions();
 
       try {
         const data = await apiGet("/api/admin/chat-sessions/" + encodeURIComponent(sessionId));
         const s = data.session || {};
+        updateModeBadge(s.sessionMode || "ai");
         activeTitleEl.textContent = s.leadSubmitted ? "Ajánlatkéréses beszélgetés" : "Beszélgetés";
 
         detailsEl.innerHTML = `
@@ -380,7 +255,6 @@
           messagesEl.innerHTML = '<div class="empty">Ehhez a sessionhöz nincs üzenet.</div>';
           return;
         }
-
         messagesEl.innerHTML = messages.map((m) => `
           <div class="msg ${esc(m.role)}">
             <small>${esc(m.role)} · ${esc(m.at || "")}</small>
@@ -393,21 +267,43 @@
       }
     }
 
+    async function takeover() {
+      if (!activeSessionId) return alert("Előbb válassz beszélgetést.");
+      await apiPost("/api/admin/chat-sessions/" + encodeURIComponent(activeSessionId) + "/takeover");
+      await loadSession(activeSessionId);
+      await loadSessions();
+    }
+
+    async function release() {
+      if (!activeSessionId) return alert("Előbb válassz beszélgetést.");
+      await apiPost("/api/admin/chat-sessions/" + encodeURIComponent(activeSessionId) + "/release");
+      await loadSession(activeSessionId);
+      await loadSessions();
+    }
+
+    async function sendReply() {
+      if (!activeSessionId) return alert("Előbb válassz beszélgetést.");
+      const message = replyText.value.trim();
+      if (!message) return;
+      await apiPost("/api/admin/chat-sessions/" + encodeURIComponent(activeSessionId) + "/reply", { message });
+      replyText.value = "";
+      await loadSession(activeSessionId);
+      await loadSessions();
+    }
+
     document.getElementById("saveBtn").addEventListener("click", () => {
       localStorage.setItem("laprix_admin_api_base", getApiBase());
       localStorage.setItem("laprix_admin_token", getToken());
       loadSessions();
     });
-
     document.getElementById("refreshBtn").addEventListener("click", loadSessions);
+    document.getElementById("takeoverBtn").addEventListener("click", takeover);
+    document.getElementById("releaseBtn").addEventListener("click", release);
+    document.getElementById("sendReplyBtn").addEventListener("click", sendReply);
+    document.getElementById("clearReplyBtn").addEventListener("click", () => { replyText.value = ""; });
 
-    if (apiBaseInput.value && tokenInput.value) {
-      loadSessions();
-    }
-
-    setInterval(() => {
-      if (apiBaseInput.value && tokenInput.value) loadSessions();
-    }, 10000);
+    if (apiBaseInput.value && tokenInput.value) loadSessions();
+    setInterval(() => { if (apiBaseInput.value && tokenInput.value) loadSessions(); }, 8000);
   </script>
 </body>
 </html>

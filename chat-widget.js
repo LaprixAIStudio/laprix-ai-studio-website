@@ -57,6 +57,10 @@
     messages: [],
     sessionId: getOrCreateLaprixId("laprix_chat_session_id", "chat"),
     visitorId: getOrCreateLaprixId("laprix_chat_visitor_id", "visitor"),
+    sessionMode: "ai",
+    sessionModeKnown: false,
+    seenUpdateIds: new Set(),
+    pollTimer: null,
   };
 
   function injectLeadFixStyles() {
@@ -107,6 +111,22 @@
         border: 0;
         cursor: pointer;
       }
+
+      .laprix-chat-message.system .laprix-chat-bubble {
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 92%;
+        text-align: center;
+        background: rgba(250, 204, 21, 0.10);
+        border: 1px solid rgba(250, 204, 21, 0.22);
+        color: #fff4bf;
+        font-size: 0.84rem;
+      }
+
+      .laprix-chat-message.human .laprix-chat-bubble {
+        background: linear-gradient(135deg, rgba(56, 217, 255, 0.18), rgba(157, 124, 255, 0.16));
+        border: 1px solid rgba(56, 217, 255, 0.26);
+      }
     `;
     document.head.appendChild(style);
   }
@@ -118,7 +138,11 @@
     return el;
   }
 
-  function addMessage(role, text) {
+  function addMessage(role, text, options = {}) {
+    const messageId = options.id || "";
+    if (messageId && state.seenUpdateIds.has(messageId)) return;
+    if (messageId) state.seenUpdateIds.add(messageId);
+
     state.messages.push({ role, text });
     const list = document.querySelector(".laprix-chat-messages");
     if (!list) return;
@@ -138,8 +162,72 @@
     if (sendBtn) sendBtn.disabled = isBusy;
     if (input) input.disabled = isBusy;
     const status = document.querySelector(".laprix-chat-status");
-    if (status) status.textContent = isBusy ? "A Laprix AI válaszol..." : "Online";
+    if (status) {
+      status.textContent = isBusy
+        ? (state.sessionMode === "human" ? "Üzenet küldése..." : "A Laprix AI válaszol...")
+        : (state.sessionMode === "human" ? "Munkatárs csatlakozott" : "Online");
+    }
   }
+
+
+  function setSessionMode(mode, shouldAnnounce = true) {
+    const nextMode = mode === "human" ? "human" : "ai";
+    const previousMode = state.sessionMode;
+    const wasKnown = state.sessionModeKnown;
+
+    state.sessionMode = nextMode;
+    state.sessionModeKnown = true;
+
+    const status = document.querySelector(".laprix-chat-status");
+    const input = document.querySelector(".laprix-chat-input");
+    if (status && !state.isBusy) {
+      status.textContent = nextMode === "human" ? "Munkatárs csatlakozott" : "Online";
+    }
+    if (input) {
+      input.placeholder = nextMode === "human"
+        ? "Írj a Laprix munkatársnak..."
+        : "Írd be a kérdésed...";
+    }
+
+    if (shouldAnnounce && wasKnown && previousMode !== nextMode) {
+      addMessage(
+        "system",
+        nextMode === "human"
+          ? "Egy Laprix AI Studio munkatárs átvette a beszélgetést. Mostantól ő válaszol."
+          : "A beszélgetés visszakerült az AI asszisztenshez."
+      );
+    }
+  }
+
+  async function pollSessionUpdates() {
+    if (!API_BASE_URL || !state.sessionId || !state.isOpen) return;
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/chat/session/${encodeURIComponent(state.sessionId)}/updates?visitorId=${encodeURIComponent(state.visitorId)}`
+      );
+      if (!response.ok) return;
+
+      const data = await response.json();
+      if (data.sessionMode) {
+        setSessionMode(data.sessionMode, true);
+      }
+
+      (data.messages || []).forEach((message) => {
+        if (!message.id || state.seenUpdateIds.has(message.id)) return;
+
+        if (message.type === "admin_message") {
+          addMessage("human", "Laprix munkatárs: " + (message.content || ""), { id: message.id });
+        } else if (message.type === "session_state") {
+          state.seenUpdateIds.add(message.id);
+          if (message.mode) setSessionMode(message.mode, true);
+        }
+      });
+    } catch (error) {
+      // Polling hiba esetén nem zavarjuk a látogatót.
+    }
+  }
+
 
   function toggleChat(forceOpen) {
     const wasOpen = state.isOpen;
@@ -196,7 +284,11 @@
         state.sessionId = data.sessionId;
         try { localStorage.setItem("laprix_chat_session_id", data.sessionId); } catch (error) {}
       }
-      addMessage("assistant", data.reply || "Nem érkezett válasz. Kérlek, próbáld újra.");
+      if (data.sessionMode) {
+        setSessionMode(data.sessionMode, true);
+      }
+      addMessage(data.sessionMode === "human" ? "system" : "assistant", data.reply || "Nem érkezett válasz. Kérlek, próbáld újra.");
+      setTimeout(pollSessionUpdates, 900);
     } catch (error) {
       addMessage(
         "assistant",
@@ -426,6 +518,11 @@
       "assistant",
       "Szia! A Laprix AI Studio asszisztense vagyok. Segítek eligazodni weboldal készítésben, meglévő weboldal kezelésben, FoglalóFlow-ban, AI chatbotban vagy egyedi programfejlesztésben. Ajánlatkérésnél az árlista csak irányadó: a pontos ár az igény alapján készül."
     );
+
+    if (!state.pollTimer) {
+      state.pollTimer = window.setInterval(pollSessionUpdates, 5000);
+      setTimeout(pollSessionUpdates, 1200);
+    }
   }
 
 
