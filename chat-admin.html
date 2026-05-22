@@ -340,6 +340,99 @@
       line-height: 1.35;
     }
 
+
+    .customer-panel {
+      display: grid;
+      gap: 10px;
+    }
+    .customer-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .customer-field {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.035);
+      border-radius: 16px;
+      padding: 10px 12px;
+      min-width: 0;
+    }
+    .customer-field small {
+      display: block;
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 4px;
+    }
+    .customer-field span,
+    .customer-field a {
+      color: var(--text);
+      overflow-wrap: anywhere;
+      text-decoration: none;
+    }
+    .customer-field a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .customer-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .customer-actions button {
+      min-height: 34px;
+      padding: 0 10px;
+      font-size: .8rem;
+    }
+    .export-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.02);
+    }
+    .export-row button {
+      min-height: 34px;
+      padding: 0 10px;
+      font-size: .8rem;
+    }
+    .auto-note {
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.35;
+      padding: 0 16px 10px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.02);
+    }
+    .copy-ok {
+      color: #c6ffe8;
+    }
+    @media (max-width: 620px) {
+      .customer-grid {
+        grid-template-columns: 1fr;
+      }
+      .customer-actions button,
+      .export-row button,
+      .quick-view-row button,
+      .quick-action-row button,
+      .template-row button {
+        flex: 1 1 100%;
+      }
+      .panel-head .toolbar {
+        width: 100%;
+      }
+      .panel-head .toolbar button,
+      .panel-head .toolbar .badge {
+        flex: 1 1 100%;
+        justify-content: center;
+      }
+    }
+
     @media (max-width:920px){
       .grid{grid-template-columns:1fr}
       .login{grid-template-columns:1fr}
@@ -388,7 +481,7 @@
       <div class="top">
         <div>
           <h1>Laprix Chat Admin</h1>
-          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.33 – admin gyorsműveletek</div>
+          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.34 – admin végső polírozás</div>
         </div>
         <div class="toolbar">
           <button class="secondary" id="refreshBtn">Frissítés</button>
@@ -456,6 +549,16 @@
           <button class="secondary" data-quick-view="quote">Ajánlat kiküldve</button>
           <button class="secondary" data-quick-view="unread">Új üzenetes</button>
         </div>
+
+        <div class="export-row">
+          <button class="secondary" id="exportVisibleCsvBtn">Látható lista CSV</button>
+          <button class="secondary" id="exportAllCsvBtn">Összes chat CSV</button>
+          <button class="secondary" id="copyActiveEmailBtn">Aktív e-mail másolása</button>
+        </div>
+        <div class="auto-note">
+          Automatikus segédlogika: admin válasz után az új beszélgetés „Folyamatban” státuszra vált; ajánlatkéréses lead alapból kiemelt jelzést kap a listában.
+        </div>
+
 
 
         <div id="sessions" class="sessions"><div class="empty">Add meg a backend URL-t és az admin tokent.</div></div>
@@ -846,6 +949,94 @@
       renderSessions();
     }
 
+    function csvEscape(value) {
+      const text = String(value || "");
+      return '"' + text.replaceAll('"', '""') + '"';
+    }
+
+    function downloadCsv(filename, rows) {
+      const header = [
+        "sessionId",
+        "status",
+        "rating",
+        "leadName",
+        "leadEmail",
+        "projectType",
+        "messageCount",
+        "lastAt",
+        "lastUserMessage",
+        "lastAdminReply",
+        "internalNote",
+        "pageUrl"
+      ];
+
+      const csv = [
+        header.map(csvEscape).join(","),
+        ...rows.map((s) => header.map((key) => csvEscape(s[key])).join(","))
+      ].join("\n");
+
+      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function copyText(value, successMessage = "Másolva.") {
+      const text = String(value || "").trim();
+      if (!text) return alert("Nincs másolható érték.");
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          alert(successMessage);
+        }).catch(() => {
+          window.prompt("Másold ki:", text);
+        });
+      } else {
+        window.prompt("Másold ki:", text);
+      }
+    }
+
+    function getActiveSessionFromList() {
+      return sessions.find((s) => s.sessionId === activeSessionId) || null;
+    }
+
+    function copyActiveEmail() {
+      const s = getActiveSessionFromList();
+      if (!s || !s.leadEmail) return alert("Az aktív beszélgetéshez nincs e-mail cím.");
+      copyText(s.leadEmail, "E-mail cím másolva.");
+    }
+
+    function exportVisibleCsv() {
+      downloadCsv("laprix-chat-lathato-lista.csv", filteredSessions || []);
+    }
+
+    function exportAllCsv() {
+      downloadCsv("laprix-chat-osszes.csv", sessions || []);
+    }
+
+    async function autoMarkAfterAdminReply() {
+      if (!activeSessionId) return;
+      if (sessionStatus.value === "new") {
+        sessionStatus.value = "in_progress";
+        const stamp = new Date().toLocaleString("hu-HU");
+        const current = internalNote.value.trim();
+        const note = `[${stamp}] Admin válasz elküldve, státusz automatikusan Folyamatban.`;
+        internalNote.value = current ? current + "\n" + note : note;
+        await saveMeta();
+      }
+    }
+
+    function applyLeadDefaultsToControls(session) {
+      if (!session) return;
+      if (session.leadSubmitted && (!session.rating || session.rating === "unknown")) {
+        sessionRating.value = "hot";
+      }
+    }
+
 
     async function apiGet(path) {
       const response = await fetch(getApiBase() + path, { headers: { Authorization: "Bearer " + getToken() } });
@@ -949,7 +1140,7 @@
 
     function clearAlert() {
       alertBar.classList.remove("show");
-      adminStateBadge.innerHTML = '<span class="dot"></span> V1.33 – admin gyorsműveletek';
+      adminStateBadge.innerHTML = '<span class="dot"></span> V1.34 – admin végső polírozás';
       stopTitleBlink();
     }
 
@@ -1038,7 +1229,7 @@
               <span>
                 ${isUnread ? '<span class="new-pill">ÚJ</span>' : ''}
                 <span class="status-pill ${statusClass(s.status)}">${statusLabel(s.status)}</span>
-                ${s.rating && s.rating !== "unknown" ? `<span class="rating-pill ${ratingClass(s.rating)}">${ratingLabel(s.rating)}</span>` : ''}
+                ${(s.rating && s.rating !== "unknown") ? `<span class="rating-pill ${ratingClass(s.rating)}">${ratingLabel(s.rating)}</span>` : (s.leadSubmitted ? '<span class="rating-pill rating-hot">Ajánlat lead</span>' : '')}
                 ${s.sessionMode === "human" ? '<span class="human-pill">EMBER</span>' : ''}
                 ${s.leadSubmitted ? '<span class="lead-pill">AJÁNLAT</span>' : ''}
               </span>
@@ -1087,19 +1278,34 @@
         sessionStatus.value = s.status || "new";
         sessionRating.value = s.rating || "unknown";
         internalNote.value = s.internalNote || "";
+        applyLeadDefaultsToControls(s);
         activeTitleEl.textContent = s.leadSubmitted ? "Ajánlatkéréses beszélgetés" : "Beszélgetés";
 
         detailsEl.innerHTML = `
-          <strong>Session:</strong> ${esc(s.sessionId)}<br>
-          ${s.leadName ? `<strong>Név:</strong> ${esc(s.leadName)}<br>` : ""}
-          ${s.leadEmail ? `<strong>E-mail:</strong> ${esc(s.leadEmail)}<br>` : ""}
-          ${s.projectType ? `<strong>Típus:</strong> ${esc(s.projectType)}<br>` : ""}
-          <strong>Státusz:</strong> ${esc(statusLabel(s.status || "new"))}<br>
-          <strong>Lead minősítés:</strong> ${esc(ratingLabel(s.rating || "unknown"))}<br>
-          ${s.metaUpdatedAt ? `<strong>Meta frissítve:</strong> ${esc(formatDateTime(s.metaUpdatedAt))}<br>` : ""}
-          ${s.pageUrl ? `<strong>Oldal:</strong> <a href="${esc(s.pageUrl)}" target="_blank" rel="noreferrer">${esc(s.pageTitle || s.pageUrl)}</a><br>` : ""}
-          ${s.ip ? `<strong>IP:</strong> ${esc(s.ip)}<br>` : ""}
+          <div class="customer-panel">
+            <div class="customer-grid">
+              <div class="customer-field"><small>Név</small><span>${esc(s.leadName || "Nincs megadva")}</span></div>
+              <div class="customer-field"><small>E-mail</small><span>${s.leadEmail ? `<a href="mailto:${esc(s.leadEmail)}">${esc(s.leadEmail)}</a>` : "Nincs megadva"}</span></div>
+              <div class="customer-field"><small>Típus</small><span>${esc(s.projectType || "Nincs megadva")}</span></div>
+              <div class="customer-field"><small>Státusz</small><span>${esc(statusLabel(s.status || "new"))}</span></div>
+              <div class="customer-field"><small>Lead minősítés</small><span>${esc(ratingLabel(s.rating || (s.leadSubmitted ? "hot" : "unknown")))}</span></div>
+              <div class="customer-field"><small>Meta frissítve</small><span>${esc(formatDateTime(s.metaUpdatedAt) || "Nincs")}</span></div>
+              <div class="customer-field"><small>Session</small><span>${esc(s.sessionId)}</span></div>
+              <div class="customer-field"><small>IP</small><span>${esc(s.ip || "Nincs")}</span></div>
+            </div>
+            ${s.pageUrl ? `<div class="customer-field"><small>Oldal</small><a href="${esc(s.pageUrl)}" target="_blank" rel="noreferrer">${esc(s.pageTitle || s.pageUrl)}</a></div>` : ""}
+            <div class="customer-actions">
+              ${s.leadEmail ? `<button class="secondary" id="detailCopyEmailBtn">E-mail másolása</button><a class="badge" href="mailto:${esc(s.leadEmail)}">E-mail írása</a>` : ""}
+              ${s.pageUrl ? `<button class="secondary" id="detailCopyUrlBtn">Oldal link másolása</button>` : ""}
+            </div>
+          </div>
         `;
+
+        const detailCopyEmailBtn = document.getElementById("detailCopyEmailBtn");
+        if (detailCopyEmailBtn) detailCopyEmailBtn.addEventListener("click", () => copyText(s.leadEmail, "E-mail cím másolva."));
+
+        const detailCopyUrlBtn = document.getElementById("detailCopyUrlBtn");
+        if (detailCopyUrlBtn) detailCopyUrlBtn.addEventListener("click", () => copyText(s.pageUrl, "Oldal link másolva."));
 
         const messages = data.messages || [];
         if (!messages.length) {
@@ -1140,6 +1346,7 @@
       if (!message) return;
       await apiPost("/api/admin/chat-sessions/" + encodeURIComponent(activeSessionId) + "/reply", { message });
       replyText.value = "";
+      await autoMarkAfterAdminReply();
       await loadSession(activeSessionId);
       await loadSessions();
     }
@@ -1221,6 +1428,11 @@
     document.getElementById("clearMetaBtn").addEventListener("click", clearMetaNote);
     document.getElementById("sendReplyBtn").addEventListener("click", sendReply);
     document.getElementById("clearReplyBtn").addEventListener("click", () => { replyText.value = ""; });
+
+    document.getElementById("exportVisibleCsvBtn").addEventListener("click", exportVisibleCsv);
+    document.getElementById("exportAllCsvBtn").addEventListener("click", exportAllCsv);
+    document.getElementById("copyActiveEmailBtn").addEventListener("click", copyActiveEmail);
+
     replyText.addEventListener("keydown", (event) => {
       if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
         sendReply();
