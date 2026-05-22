@@ -47,6 +47,7 @@
     }
     .dot { width:8px; height:8px; border-radius:999px; background:var(--ok); }
     .dot.human { background:var(--warn); }
+    .dot.alert { background:var(--danger); box-shadow: 0 0 18px rgba(251,113,133,.7); }
     .login { display:grid; gap:10px; grid-template-columns:minmax(220px,1fr) minmax(220px,1fr) auto; padding:18px 0; border-top:1px solid var(--line); }
     input, textarea, button {
       min-height:42px; border-radius:14px; border:1px solid var(--line); background:rgba(15,23,42,.78);
@@ -60,15 +61,26 @@
     .grid { display:grid; grid-template-columns:390px 1fr; gap:18px; align-items:start; }
     .panel { border:1px solid var(--line); background:var(--panel); border-radius:24px; overflow:hidden; box-shadow:0 22px 60px rgba(0,0,0,.28); }
     .panel-head { padding:16px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; }
-    .sessions { max-height:calc(100vh - 210px); overflow:auto; }
-    .session-item { width:100%; display:block; text-align:left; padding:14px 16px; border:0; border-bottom:1px solid var(--line); border-radius:0; background:transparent; color:var(--text); cursor:pointer; }
+    .sessions { max-height:calc(100vh - 250px); overflow:auto; }
+    .session-item { width:100%; display:block; text-align:left; padding:14px 16px; border:0; border-bottom:1px solid var(--line); border-radius:0; background:transparent; color:var(--text); cursor:pointer; position:relative; }
     .session-item:hover,.session-item.active { background:rgba(56,217,255,.08); }
+    .session-item.unread { background:rgba(250,204,21,.08); }
+    .session-item.unread::before {
+      content:"";
+      position:absolute;
+      left:0;
+      top:0;
+      bottom:0;
+      width:4px;
+      background:linear-gradient(180deg,var(--warn),var(--danger));
+    }
     .session-title { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; font-weight:900; }
     .session-meta,.session-snippet { color:var(--muted); font-size:.82rem; line-height:1.38; }
-    .lead-pill,.human-pill { color:#04111f; border-radius:999px; padding:4px 8px; font-size:.72rem; font-weight:950; white-space:nowrap; }
+    .lead-pill,.human-pill,.new-pill { color:#04111f; border-radius:999px; padding:4px 8px; font-size:.72rem; font-weight:950; white-space:nowrap; margin-left:4px; }
     .lead-pill { background:var(--warn); }
     .human-pill { background:var(--accent); }
-    .messages { padding:18px; min-height:420px; max-height:calc(100vh - 360px); overflow:auto; }
+    .new-pill { background:var(--danger); color:white; }
+    .messages { padding:18px; min-height:420px; max-height:calc(100vh - 390px); overflow:auto; }
     .empty { color:var(--muted); padding:28px; text-align:center; }
     .msg { max-width:780px; margin:0 0 12px; padding:13px 15px; border-radius:18px; border:1px solid var(--line); background:var(--panel2); white-space:pre-wrap; line-height:1.48; }
     .msg.user { margin-left:auto; background:rgba(56,217,255,.10); border-color:rgba(56,217,255,.22); }
@@ -82,7 +94,44 @@
     .reply-box { padding:16px; border-top:1px solid var(--line); display:grid; gap:10px; }
     .reply-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
     .hint { color:var(--muted); font-size:.84rem; line-height:1.4; }
-    @media (max-width:920px){ .grid{grid-template-columns:1fr}.login{grid-template-columns:1fr}.sessions,.messages{max-height:none}.reply-actions button{width:100%} }
+    .alert-bar {
+      display:none;
+      border-top:1px solid rgba(251,113,133,.28);
+      border-bottom:1px solid rgba(251,113,133,.28);
+      background:rgba(251,113,133,.12);
+      color:#ffd6dd;
+      padding:10px 0;
+      font-weight:850;
+    }
+    .alert-bar.show { display:block; }
+    .alert-bar .wrap { display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    .switch-row {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      padding:0 0 14px;
+    }
+    .toggle {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      color:var(--muted);
+      font-size:.84rem;
+      cursor:pointer;
+      user-select:none;
+    }
+    .toggle input { min-height:auto; width:auto; }
+    @media (max-width:920px){
+      .grid{grid-template-columns:1fr}
+      .login{grid-template-columns:1fr}
+      .sessions,.messages{max-height:none}
+      .reply-actions button{width:100%}
+    }
   </style>
 </head>
 <body>
@@ -91,10 +140,11 @@
       <div class="top">
         <div>
           <h1>Laprix Chat Admin</h1>
-          <div class="badge"><span class="dot"></span> V1.23 – emberi átvétel alapverzió</div>
+          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.24 – admin értesítések aktívak</div>
         </div>
         <div class="toolbar">
           <button class="secondary" id="refreshBtn">Frissítés</button>
+          <button class="secondary" id="notifyPermissionBtn">Böngésző értesítés</button>
           <a class="badge" href="/" style="text-decoration:none">← Főoldal</a>
         </div>
       </div>
@@ -102,6 +152,18 @@
         <input id="apiBase" placeholder="Backend API URL, pl. https://laprix-ai-chat-backend.onrender.com" />
         <input id="adminToken" type="password" placeholder="Admin token" />
         <button id="saveBtn">Mentés és betöltés</button>
+      </div>
+      <div class="switch-row">
+        <label class="toggle"><input type="checkbox" id="soundToggle"> hangjelzés</label>
+        <label class="toggle"><input type="checkbox" id="desktopToggle"> böngésző értesítés</label>
+        <label class="toggle"><input type="checkbox" id="titleToggle"> cím villogtatás</label>
+        <span class="badge" id="lastRefreshBadge">még nincs frissítés</span>
+      </div>
+    </div>
+    <div class="alert-bar" id="alertBar">
+      <div class="wrap">
+        <span id="alertText">Új chat aktivitás érkezett.</span>
+        <button class="secondary" id="clearAlertBtn">Láttam</button>
       </div>
     </div>
   </header>
@@ -143,6 +205,7 @@
   <script>
     const config = window.LAPRIX_CHAT_CONFIG || {};
     const defaultApi = (config.apiBaseUrl || "").replace(/\/$/, "");
+    const originalTitle = document.title;
 
     const apiBaseInput = document.getElementById("apiBase");
     const tokenInput = document.getElementById("adminToken");
@@ -153,13 +216,28 @@
     const activeTitleEl = document.getElementById("activeTitle");
     const modeBadge = document.getElementById("modeBadge");
     const replyText = document.getElementById("replyText");
+    const alertBar = document.getElementById("alertBar");
+    const alertText = document.getElementById("alertText");
+    const soundToggle = document.getElementById("soundToggle");
+    const desktopToggle = document.getElementById("desktopToggle");
+    const titleToggle = document.getElementById("titleToggle");
+    const lastRefreshBadge = document.getElementById("lastRefreshBadge");
+    const adminStateBadge = document.getElementById("adminStateBadge");
 
     let activeSessionId = "";
     let activeSessionMode = "ai";
     let sessions = [];
+    let previousSessionMap = new Map();
+    let unreadSessionIds = new Set(JSON.parse(localStorage.getItem("laprix_admin_unread_sessions") || "[]"));
+    let titleBlinkTimer = null;
+    let titleBlinkOn = false;
+    let audioContext = null;
 
     apiBaseInput.value = localStorage.getItem("laprix_admin_api_base") || defaultApi;
     tokenInput.value = localStorage.getItem("laprix_admin_token") || "";
+    soundToggle.checked = localStorage.getItem("laprix_admin_sound_enabled") === "true";
+    desktopToggle.checked = localStorage.getItem("laprix_admin_desktop_enabled") === "true";
+    titleToggle.checked = localStorage.getItem("laprix_admin_title_enabled") !== "false";
 
     function esc(value) {
       return String(value || "")
@@ -168,6 +246,9 @@
     }
     function getApiBase(){ return apiBaseInput.value.replace(/\/$/,"").trim(); }
     function getToken(){ return tokenInput.value.trim(); }
+    function persistUnread(){
+      localStorage.setItem("laprix_admin_unread_sessions", JSON.stringify([...unreadSessionIds]));
+    }
 
     async function apiGet(path) {
       const response = await fetch(getApiBase() + path, { headers: { Authorization: "Bearer " + getToken() } });
@@ -184,6 +265,101 @@
       return response.json();
     }
 
+    function playBeep() {
+      if (!soundToggle.checked) return;
+      try {
+        audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(880, audioContext.currentTime);
+        gain.gain.setValueAtTime(0.001, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.22, audioContext.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.32);
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start();
+        osc.stop(audioContext.currentTime + 0.35);
+      } catch (error) {}
+    }
+
+    function maybeDesktopNotify(title, body) {
+      if (!desktopToggle.checked) return;
+      if (!("Notification" in window)) return;
+      if (Notification.permission !== "granted") return;
+      try {
+        new Notification(title, {
+          body,
+          icon: "/favicon.png",
+          tag: "laprix-chat-admin",
+        });
+      } catch (error) {}
+    }
+
+    function startTitleBlink(count) {
+      if (!titleToggle.checked || titleBlinkTimer) return;
+      titleBlinkTimer = setInterval(() => {
+        titleBlinkOn = !titleBlinkOn;
+        document.title = titleBlinkOn ? `(${count}) Új chat – Laprix` : originalTitle;
+      }, 900);
+    }
+
+    function stopTitleBlink() {
+      if (titleBlinkTimer) clearInterval(titleBlinkTimer);
+      titleBlinkTimer = null;
+      titleBlinkOn = false;
+      document.title = originalTitle;
+    }
+
+    function showAlert(count, sampleText) {
+      if (count <= 0) return;
+      alertText.textContent = `${count} új chat aktivitás érkezett. ${sampleText ? "Utolsó: " + sampleText.slice(0, 90) : ""}`;
+      alertBar.classList.add("show");
+      adminStateBadge.innerHTML = '<span class="dot alert"></span> új chat aktivitás';
+      playBeep();
+      maybeDesktopNotify("Új Laprix chat aktivitás", sampleText || "Új üzenet vagy beszélgetés érkezett.");
+      startTitleBlink(count);
+    }
+
+    function clearAlert() {
+      alertBar.classList.remove("show");
+      adminStateBadge.innerHTML = '<span class="dot"></span> V1.24 – admin értesítések aktívak';
+      stopTitleBlink();
+    }
+
+    function detectNewActivity(newSessions) {
+      if (!previousSessionMap.size) {
+        newSessions.forEach((s) => previousSessionMap.set(s.sessionId, { lastAt: s.lastAt, messageCount: s.messageCount }));
+        return;
+      }
+
+      let newCount = 0;
+      let sampleText = "";
+
+      newSessions.forEach((s) => {
+        const previous = previousSessionMap.get(s.sessionId);
+        const currentCount = Number(s.messageCount || 0);
+        const previousCount = previous ? Number(previous.messageCount || 0) : 0;
+        const changed = !previous || previous.lastAt !== s.lastAt || currentCount > previousCount;
+
+        if (changed) {
+          const selfAdminOnly = s.lastAdminReply && s.lastAdminReply === (s.lastUserMessage || "");
+          if (s.sessionId !== activeSessionId && !selfAdminOnly) {
+            unreadSessionIds.add(s.sessionId);
+            newCount += 1;
+            sampleText = s.lastUserMessage || s.lastAdminReply || s.lastAssistantReply || sampleText;
+          }
+        }
+
+        previousSessionMap.set(s.sessionId, { lastAt: s.lastAt, messageCount: s.messageCount });
+      });
+
+      if (newCount > 0) {
+        persistUnread();
+        showAlert(newCount, sampleText);
+      }
+    }
+
     function updateModeBadge(mode) {
       activeSessionMode = mode === "human" ? "human" : "ai";
       modeBadge.innerHTML = activeSessionMode === "human"
@@ -197,15 +373,18 @@
         sessionsEl.innerHTML = '<div class="empty">Még nincs mentett beszélgetés.</div>';
         return;
       }
+
       sessionsEl.innerHTML = sessions.map((s) => {
         const title = s.leadSubmitted
           ? `${esc(s.leadName || "Ajánlatkérő")} ${s.leadEmail ? " – " + esc(s.leadEmail) : ""}`
           : esc((s.lastUserMessage || "Névtelen beszélgetés").slice(0,64));
+        const isUnread = unreadSessionIds.has(s.sessionId);
         return `
-          <button class="session-item ${s.sessionId === activeSessionId ? "active" : ""}" data-session-id="${esc(s.sessionId)}">
+          <button class="session-item ${s.sessionId === activeSessionId ? "active" : ""} ${isUnread ? "unread" : ""}" data-session-id="${esc(s.sessionId)}">
             <div class="session-title">
               <span>${title}</span>
               <span>
+                ${isUnread ? '<span class="new-pill">ÚJ</span>' : ''}
                 ${s.sessionMode === "human" ? '<span class="human-pill">EMBER</span>' : ''}
                 ${s.leadSubmitted ? '<span class="lead-pill">AJÁNLAT</span>' : ''}
               </span>
@@ -215,14 +394,18 @@
           </button>
         `;
       }).join("");
+
       document.querySelectorAll(".session-item").forEach((btn) => btn.addEventListener("click", () => loadSession(btn.dataset.sessionId)));
     }
 
     async function loadSessions() {
       try {
         const data = await apiGet("/api/admin/chat-sessions?limit=100");
-        sessions = data.items || [];
+        const nextSessions = data.items || [];
+        detectNewActivity(nextSessions);
+        sessions = nextSessions;
         renderSessions();
+        lastRefreshBadge.textContent = "utolsó frissítés: " + new Date().toLocaleTimeString("hu-HU");
         if (activeSessionId) loadSession(activeSessionId, true);
       } catch (error) {
         sessionsEl.innerHTML = `<div class="empty">Hiba: ${esc(error.message)}</div>`;
@@ -232,6 +415,9 @@
     async function loadSession(sessionId, silent = false) {
       if (!sessionId) return;
       activeSessionId = sessionId;
+      unreadSessionIds.delete(sessionId);
+      persistUnread();
+      if (!unreadSessionIds.size) clearAlert();
       if (!silent) messagesEl.innerHTML = '<div class="empty">Betöltés...</div>';
       renderSessions();
 
@@ -255,13 +441,15 @@
           messagesEl.innerHTML = '<div class="empty">Ehhez a sessionhöz nincs üzenet.</div>';
           return;
         }
+
+        const atBottom = messagesEl.scrollTop + messagesEl.clientHeight >= messagesEl.scrollHeight - 80;
         messagesEl.innerHTML = messages.map((m) => `
           <div class="msg ${esc(m.role)}">
             <small>${esc(m.role)} · ${esc(m.at || "")}</small>
             ${esc(m.content || "")}
           </div>
         `).join("");
-        messagesEl.scrollTop = messagesEl.scrollHeight;
+        if (!silent || atBottom) messagesEl.scrollTop = messagesEl.scrollHeight;
       } catch (error) {
         messagesEl.innerHTML = `<div class="empty">Hiba: ${esc(error.message)}</div>`;
       }
@@ -301,6 +489,29 @@
     document.getElementById("releaseBtn").addEventListener("click", release);
     document.getElementById("sendReplyBtn").addEventListener("click", sendReply);
     document.getElementById("clearReplyBtn").addEventListener("click", () => { replyText.value = ""; });
+    document.getElementById("clearAlertBtn").addEventListener("click", () => {
+      unreadSessionIds.clear();
+      persistUnread();
+      clearAlert();
+      renderSessions();
+    });
+
+    document.getElementById("notifyPermissionBtn").addEventListener("click", async () => {
+      if (!("Notification" in window)) return alert("Ez a böngésző nem támogatja az értesítést.");
+      const result = await Notification.requestPermission();
+      alert("Értesítési jogosultság: " + result);
+    });
+
+    soundToggle.addEventListener("change", () => localStorage.setItem("laprix_admin_sound_enabled", String(soundToggle.checked)));
+    desktopToggle.addEventListener("change", () => localStorage.setItem("laprix_admin_desktop_enabled", String(desktopToggle.checked)));
+    titleToggle.addEventListener("change", () => {
+      localStorage.setItem("laprix_admin_title_enabled", String(titleToggle.checked));
+      if (!titleToggle.checked) stopTitleBlink();
+    });
+
+    window.addEventListener("focus", () => {
+      if (!unreadSessionIds.size) clearAlert();
+    });
 
     if (apiBaseInput.value && tokenInput.value) loadSessions();
     setInterval(() => { if (apiBaseInput.value && tokenInput.value) loadSessions(); }, 8000);
