@@ -292,6 +292,54 @@
       }
     }
 
+
+    .quick-view-row,
+    .quick-action-row,
+    .template-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.025);
+    }
+    .quick-view-row button,
+    .quick-action-row button,
+    .template-row button {
+      min-height: 36px;
+      padding: 0 10px;
+      font-size: .82rem;
+    }
+    .quick-view-row button.active-view {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #06111f;
+    }
+    .quick-action-row {
+      border-top: 1px solid var(--line);
+      border-bottom: 0;
+      background: rgba(56,217,255,.04);
+    }
+    .template-panel {
+      padding: 12px 16px;
+      border-top: 1px solid var(--line);
+      background: rgba(255,255,255,.025);
+      display: grid;
+      gap: 10px;
+    }
+    .template-panel strong {
+      font-size: .92rem;
+    }
+    .template-row {
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+    .mini-hint {
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.35;
+    }
+
     @media (max-width:920px){
       .grid{grid-template-columns:1fr}
       .login{grid-template-columns:1fr}
@@ -340,7 +388,7 @@
       <div class="top">
         <div>
           <h1>Laprix Chat Admin</h1>
-          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.32 – kilépés + nincs autologin</div>
+          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.33 – admin gyorsműveletek</div>
         </div>
         <div class="toolbar">
           <button class="secondary" id="refreshBtn">Frissítés</button>
@@ -400,6 +448,16 @@
         </div>
         <div class="stats-row" id="statsRow"></div>
 
+        <div class="quick-view-row" id="quickViewRow">
+          <button class="secondary active-view" data-quick-view="all">Minden</button>
+          <button class="secondary" data-quick-view="active">Aktív</button>
+          <button class="secondary" data-quick-view="new">Csak új</button>
+          <button class="secondary" data-quick-view="hot">Forró leadek</button>
+          <button class="secondary" data-quick-view="quote">Ajánlat kiküldve</button>
+          <button class="secondary" data-quick-view="unread">Új üzenetes</button>
+        </div>
+
+
         <div id="sessions" class="sessions"><div class="empty">Add meg a backend URL-t és az admin tokent.</div></div>
       </section>
 
@@ -447,11 +505,30 @@
             <button class="secondary" id="clearMetaBtn">Jegyzet törlése</button>
             <button id="saveMetaBtn">Státusz / jegyzet mentése</button>
           </div>
+
+          <div class="quick-action-row">
+            <button class="secondary" id="markInProgressBtn">Folyamatban</button>
+            <button class="secondary" id="markQuoteSentBtn">Ajánlat kiküldve</button>
+            <button class="secondary" id="markClosedBtn">Lezárva</button>
+            <button class="danger" id="markSpamBtn">Spam</button>
+          </div>
         </div>
 
         <div id="messages" class="messages"><div class="empty">Nincs kiválasztott beszélgetés.</div></div>
         <div class="reply-box">
           <div class="hint">Ha átvetted a beszélgetést, ide írhatsz választ. A látogató chatjében „Laprix munkatárs” válaszként jelenik meg.</div>
+
+          <div class="template-panel">
+            <strong>Gyors válaszsablonok</strong>
+            <div class="template-row">
+              <button class="secondary" data-template="intro">Bemutatkozás</button>
+              <button class="secondary" data-template="details">Pontosító kérdések</button>
+              <button class="secondary" data-template="website">Weboldal kezelés</button>
+              <button class="secondary" data-template="pricing">Ár / ajánlat</button>
+              <button class="secondary" data-template="handoff">E-mail egyeztetés</button>
+            </div>
+            <div class="mini-hint">A sablon a válaszmezőbe kerül, küldés előtt átírható. Küldés gyorsbillentyű: Ctrl+Enter.</div>
+          </div>
           <textarea id="replyText" placeholder="Válasz a látogatónak..."></textarea>
           <div class="reply-actions">
             <button class="secondary" id="clearReplyBtn">Törlés</button>
@@ -503,6 +580,7 @@
     let activeSessionMode = "ai";
     let sessions = [];
     let filteredSessions = [];
+    let quickView = "all";
     let previousSessionMap = new Map();
     let unreadSessionIds = new Set(JSON.parse(localStorage.getItem("laprix_admin_unread_sessions") || "[]"));
     let titleBlinkTimer = null;
@@ -635,6 +713,12 @@
       const status = statusFilter.value || "all";
       const rating = ratingFilter.value || "all";
 
+      if (quickView === "active" && ["closed", "spam", "not_relevant"].includes(s.status || "new")) return false;
+      if (quickView === "new" && (s.status || "new") !== "new") return false;
+      if (quickView === "hot" && (s.rating || "unknown") !== "hot") return false;
+      if (quickView === "quote" && (s.status || "new") !== "quote_sent") return false;
+      if (quickView === "unread" && !unreadSessionIds.has(s.sessionId)) return false;
+
       if (status !== "all" && (s.status || "new") !== status) return false;
       if (rating !== "all" && (s.rating || "unknown") !== rating) return false;
 
@@ -721,6 +805,45 @@
 
     function ratingClass(value) {
       return "rating-" + String(value || "unknown").replace(/[^a-zA-Z0-9_-]/g, "");
+    }
+
+    const REPLY_TEMPLATES = {
+      intro: "Szia! István vagyok a Laprix AI Studiotól. Átvettem a beszélgetést. Miben segíthetek pontosan?",
+      details: "Köszönöm az érdeklődést. Ahhoz, hogy pontosabb irányt vagy ajánlatot tudjak adni, kérlek írd meg röviden: van-e már weboldalad, mi lenne a fő cél, milyen funkciók kellenek, és mennyire sürgős a feladat?",
+      website: "Rendben, meglévő weboldal kezelésében is tudunk segíteni. Kérlek küldd el a weboldal linkjét, és írd meg, milyen feladatokra lenne szükség: szövegcsere, képcsere, új aloldal, hibajavítás, SEO alapok vagy rendszeres karbantartás.",
+      pricing: "Az árlista tájékoztató jellegű. Egyszerűbb feladat lehet olcsóbb is, összetettebb fejlesztésnél pedig magasabb ár is indokolt lehet. Ha leírod a pontos igényt, adok egy reális előzetes irányt vagy e-mailben pontosítunk.",
+      handoff: "Ezt érdemes lesz e-mailben pontosítani. Kérlek küldd el az elérhetőségedet vagy írj a hello@laprixaistudio.hu címre, és összerakjuk a következő lépéseket."
+    };
+
+    function applyReplyTemplate(key) {
+      const template = REPLY_TEMPLATES[key];
+      if (!template) return;
+      const current = replyText.value.trim();
+      replyText.value = current ? current + "\n\n" + template : template;
+      replyText.focus();
+    }
+
+    async function quickSetMeta(status, rating = null, appendNote = "") {
+      if (!activeSessionId) return alert("Előbb válassz beszélgetést.");
+
+      sessionStatus.value = status;
+      if (rating) sessionRating.value = rating;
+
+      if (appendNote) {
+        const current = internalNote.value.trim();
+        const stamp = new Date().toLocaleString("hu-HU");
+        internalNote.value = current ? current + "\n" + `[${stamp}] ${appendNote}` : `[${stamp}] ${appendNote}`;
+      }
+
+      await saveMeta();
+    }
+
+    function setQuickView(nextView) {
+      quickView = nextView || "all";
+      document.querySelectorAll("[data-quick-view]").forEach((button) => {
+        button.classList.toggle("active-view", button.dataset.quickView === quickView);
+      });
+      renderSessions();
     }
 
 
@@ -826,7 +949,7 @@
 
     function clearAlert() {
       alertBar.classList.remove("show");
-      adminStateBadge.innerHTML = '<span class="dot"></span> V1.32 – kilépés + nincs autologin';
+      adminStateBadge.innerHTML = '<span class="dot"></span> V1.33 – admin gyorsműveletek';
       stopTitleBlink();
     }
 
@@ -1078,6 +1201,18 @@
     sessionSearch.addEventListener("input", renderSessions);
     statusFilter.addEventListener("change", renderSessions);
     ratingFilter.addEventListener("change", renderSessions);
+
+    document.querySelectorAll("[data-quick-view]").forEach((button) => {
+      button.addEventListener("click", () => setQuickView(button.dataset.quickView));
+    });
+    document.querySelectorAll("[data-template]").forEach((button) => {
+      button.addEventListener("click", () => applyReplyTemplate(button.dataset.template));
+    });
+    document.getElementById("markInProgressBtn").addEventListener("click", () => quickSetMeta("in_progress", null, "Gyors státusz: folyamatban."));
+    document.getElementById("markQuoteSentBtn").addEventListener("click", () => quickSetMeta("quote_sent", "warm", "Ajánlat kiküldve / előkészítve."));
+    document.getElementById("markClosedBtn").addEventListener("click", () => quickSetMeta("closed", null, "Beszélgetés lezárva."));
+    document.getElementById("markSpamBtn").addEventListener("click", () => quickSetMeta("spam", "cold", "Spamként / nem relevánsként jelölve."));
+
     document.getElementById("refreshBtn").addEventListener("click", loadSessions);
     document.getElementById("takeoverBtn").addEventListener("click", takeover);
     document.getElementById("releaseBtn").addEventListener("click", release);
@@ -1086,6 +1221,11 @@
     document.getElementById("clearMetaBtn").addEventListener("click", clearMetaNote);
     document.getElementById("sendReplyBtn").addEventListener("click", sendReply);
     document.getElementById("clearReplyBtn").addEventListener("click", () => { replyText.value = ""; });
+    replyText.addEventListener("keydown", (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+        sendReply();
+      }
+    });
     document.getElementById("clearAlertBtn").addEventListener("click", () => {
       unreadSessionIds.clear();
       persistUnread();
