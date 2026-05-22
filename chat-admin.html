@@ -140,7 +140,7 @@
       <div class="top">
         <div>
           <h1>Laprix Chat Admin</h1>
-          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.27 – magyar időzóna</div>
+          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.28 – háttér értesítések</div>
         </div>
         <div class="toolbar">
           <button class="secondary" id="refreshBtn">Frissítés</button>
@@ -158,6 +158,7 @@
         <label class="toggle"><input type="checkbox" id="desktopToggle"> böngésző értesítés</label>
         <label class="toggle"><input type="checkbox" id="titleToggle"> cím villogtatás</label>
         <span class="badge" id="lastRefreshBadge">még nincs frissítés</span>
+        <span class="badge">Az értesítéshez az admin oldalnak nyitva kell maradnia</span>
       </div>
     </div>
     <div class="alert-bar" id="alertBar">
@@ -233,6 +234,8 @@
     let titleBlinkTimer = null;
     let titleBlinkOn = false;
     let audioContext = null;
+    let windowHasFocus = document.hasFocus();
+    let lastNotificationAt = 0;
 
     apiBaseInput.value = localStorage.getItem("laprix_admin_api_base") || defaultApi;
     tokenInput.value = localStorage.getItem("laprix_admin_token") || "";
@@ -309,21 +312,41 @@
       if (!desktopToggle.checked) return;
       if (!("Notification" in window)) return;
       if (Notification.permission !== "granted") return;
+
+      const now = Date.now();
+      if (now - lastNotificationAt < 2500) return;
+      lastNotificationAt = now;
+
       try {
-        new Notification(title, {
+        const notification = new Notification(title, {
           body,
           icon: "/favicon.png",
-          tag: "laprix-chat-admin",
+          badge: "/favicon.png",
+          tag: "laprix-chat-admin-" + now,
+          requireInteraction: true,
+          silent: false,
         });
+
+        notification.onclick = () => {
+          try {
+            window.focus();
+            notification.close();
+          } catch (error) {}
+        };
       } catch (error) {}
     }
 
     function startTitleBlink(count) {
-      if (!titleToggle.checked || titleBlinkTimer) return;
+      if (!titleToggle.checked) return;
+
+      // Azonnali fülcím jelzés. Ez akkor is látszik, ha a böngésző háttérben lassítja az intervalt.
+      document.title = `(${count}) Új chat – Laprix`;
+
+      if (titleBlinkTimer) return;
       titleBlinkTimer = setInterval(() => {
         titleBlinkOn = !titleBlinkOn;
-        document.title = titleBlinkOn ? `(${count}) Új chat – Laprix` : originalTitle;
-      }, 900);
+        document.title = titleBlinkOn ? `(${count}) Új chat – Laprix` : "Új üzenet érkezett";
+      }, 1200);
     }
 
     function stopTitleBlink() {
@@ -333,25 +356,40 @@
       document.title = originalTitle;
     }
 
+    function shouldNotifyForSession(sessionId) {
+      // Ha az admin oldal nincs fókuszban vagy másik ablak aktív, akkor akkor is jelezzen,
+      // ha épp ez a beszélgetés van kijelölve.
+      if (document.hidden || !windowHasFocus) return true;
+
+      // Ha nem ez az aktív beszélgetés, akkor látható admin oldalon is jelezzen.
+      return sessionId !== activeSessionId;
+    }
+
     function showAlert(count, sampleText) {
       if (count <= 0) return;
-      alertText.textContent = `${count} új chat aktivitás érkezett. ${sampleText ? "Utolsó: " + sampleText.slice(0, 90) : ""}`;
+      alertText.textContent = `${count} új chat üzenet érkezett. ${sampleText ? "Utolsó: " + sampleText.slice(0, 90) : ""}`;
       alertBar.classList.add("show");
-      adminStateBadge.innerHTML = '<span class="dot alert"></span> új chat aktivitás';
+      adminStateBadge.innerHTML = '<span class="dot alert"></span> új chat üzenet';
       playBeep();
-      maybeDesktopNotify("Új Laprix chat aktivitás", sampleText || "Új üzenet vagy beszélgetés érkezett.");
-      startTitleBlink(count);
+      maybeDesktopNotify("Új Laprix chat üzenet", sampleText || "Új üzenet érkezett a Laprix chatben.");
+      startTitleBlink(unreadSessionIds.size || count);
     }
 
     function clearAlert() {
       alertBar.classList.remove("show");
-      adminStateBadge.innerHTML = '<span class="dot"></span> V1.27 – magyar időzóna';
+      adminStateBadge.innerHTML = '<span class="dot"></span> V1.28 – háttér értesítések';
       stopTitleBlink();
     }
 
     function detectNewActivity(newSessions) {
       if (!previousSessionMap.size) {
-        newSessions.forEach((s) => previousSessionMap.set(s.sessionId, { lastAt: s.lastAt, messageCount: s.messageCount }));
+        newSessions.forEach((s) => previousSessionMap.set(s.sessionId, {
+          lastAt: s.lastAt,
+          messageCount: Number(s.messageCount || 0),
+          lastUserMessage: s.lastUserMessage || "",
+          lastAdminReply: s.lastAdminReply || "",
+          lastAssistantReply: s.lastAssistantReply || "",
+        }));
         return;
       }
 
@@ -360,20 +398,32 @@
 
       newSessions.forEach((s) => {
         const previous = previousSessionMap.get(s.sessionId);
-        const currentCount = Number(s.messageCount || 0);
-        const previousCount = previous ? Number(previous.messageCount || 0) : 0;
-        const changed = !previous || previous.lastAt !== s.lastAt || currentCount > previousCount;
+        const current = {
+          lastAt: s.lastAt,
+          messageCount: Number(s.messageCount || 0),
+          lastUserMessage: s.lastUserMessage || "",
+          lastAdminReply: s.lastAdminReply || "",
+          lastAssistantReply: s.lastAssistantReply || "",
+        };
 
-        if (changed) {
-          const selfAdminOnly = s.lastAdminReply && s.lastAdminReply === (s.lastUserMessage || "");
-          if (s.sessionId !== activeSessionId && !selfAdminOnly) {
-            unreadSessionIds.add(s.sessionId);
-            newCount += 1;
-            sampleText = s.lastUserMessage || s.lastAdminReply || s.lastAssistantReply || sampleText;
-          }
+        const isNewSession = !previous;
+        const userMessageChanged = isNewSession || current.lastUserMessage !== (previous.lastUserMessage || "");
+        const messageCountIncreased = !previous || current.messageCount > Number(previous.messageCount || 0);
+
+        // Csak valódi látogatói üzenetre riasztunk.
+        // Admin saját válaszára ne legyen külön riasztás.
+        const looksLikeVisitorActivity =
+          !!current.lastUserMessage &&
+          userMessageChanged &&
+          messageCountIncreased;
+
+        if (looksLikeVisitorActivity && shouldNotifyForSession(s.sessionId)) {
+          unreadSessionIds.add(s.sessionId);
+          newCount += 1;
+          sampleText = current.lastUserMessage || sampleText;
         }
 
-        previousSessionMap.set(s.sessionId, { lastAt: s.lastAt, messageCount: s.messageCount });
+        previousSessionMap.set(s.sessionId, current);
       });
 
       if (newCount > 0) {
@@ -553,7 +603,17 @@
     });
 
     window.addEventListener("focus", () => {
+      windowHasFocus = true;
       if (!unreadSessionIds.size) clearAlert();
+    });
+
+    window.addEventListener("blur", () => {
+      windowHasFocus = false;
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      windowHasFocus = !document.hidden && document.hasFocus();
+      if (!document.hidden && !unreadSessionIds.size) clearAlert();
     });
 
     if (apiBaseInput.value && tokenInput.value) loadSessions();
