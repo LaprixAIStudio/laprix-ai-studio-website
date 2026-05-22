@@ -320,7 +320,7 @@
 
       <form class="laprix-chat-form">
         <input class="laprix-chat-input" type="text" maxlength="700" placeholder="Írd be a kérdésed..." autocomplete="off" />
-        <button class="laprix-chat-send" type="submit">Ajánlatkérés elküldése</button>
+        <button class="laprix-chat-send" type="submit">Küldés</button>
       </form>
 
       <div class="laprix-chat-lead-form-wrap">
@@ -408,7 +408,7 @@
       if (!clickable) return;
 
       // Fontos: a chat widgeten belüli gombokat nem szabad globálisan elkapni,
-      // mert akkor az "Ajánlatkérés elküldése" submit gomb sem tudná beküldeni az űrlapot.
+      // mert akkor az "Küldés" submit gomb sem tudná beküldeni az űrlapot.
       // A chat saját gombjait külön eseménykezelők kezelik lejjebb.
       if (clickable.closest(".laprix-chat-root")) return;
 
@@ -444,3 +444,35 @@
     buildWidget();
   }
 })();
+
+
+
+// V1.21 safety: keep the normal chat composer send button separate from the quote form submit button.
+function laprixFixChatSendButtonLabel() {
+  try {
+    const normalSendSelectors = [
+      '.laprix-chat-input-row button',
+      '.laprix-chat-composer button',
+      '.laprix-chat-footer button',
+      '.chat-input-row button',
+      '.chat-composer button',
+      '.chat-footer button'
+    ];
+    normalSendSelectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((button) => {
+        const text = (button.textContent || '').trim();
+        const insideLeadForm = button.closest('[data-lead-form], .laprix-lead-form, .lead-form, form');
+        const formText = insideLeadForm ? (insideLeadForm.textContent || '').toLowerCase() : '';
+        const isQuoteForm = formText.includes('fejlesztés típusa') || formText.includes('projekt') || formText.includes('ajánlat');
+        if (!isQuoteForm && text === 'Ajánlatkérés elküldése') {
+          button.textContent = 'Küldés';
+        }
+      });
+    });
+  } catch (error) {
+    // No-op: visual label safety only.
+  }
+}
+document.addEventListener('DOMContentLoaded', laprixFixChatSendButtonLabel);
+setInterval(laprixFixChatSendButtonLabel, 1200);
+
