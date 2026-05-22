@@ -140,7 +140,7 @@
       <div class="top">
         <div>
           <h1>Laprix Chat Admin</h1>
-          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.25 – törlés + admin értesítések</div>
+          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.27 – magyar időzóna</div>
         </div>
         <div class="toolbar">
           <button class="secondary" id="refreshBtn">Frissítés</button>
@@ -245,6 +245,27 @@
         .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
         .replaceAll('"',"&quot;").replaceAll("'","&#039;");
     }
+
+    function formatDateTime(value) {
+      if (!value) return "";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return String(value || "");
+
+      try {
+        return new Intl.DateTimeFormat("hu-HU", {
+          timeZone: "Europe/Budapest",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        }).format(date);
+      } catch (error) {
+        return date.toLocaleString("hu-HU");
+      }
+    }
+
     function getApiBase(){ return apiBaseInput.value.replace(/\/$/,"").trim(); }
     function getToken(){ return tokenInput.value.trim(); }
     function persistUnread(){
@@ -324,7 +345,7 @@
 
     function clearAlert() {
       alertBar.classList.remove("show");
-      adminStateBadge.innerHTML = '<span class="dot"></span> V1.25 – törlés + admin értesítések';
+      adminStateBadge.innerHTML = '<span class="dot"></span> V1.27 – magyar időzóna';
       stopTitleBlink();
     }
 
@@ -390,7 +411,7 @@
                 ${s.leadSubmitted ? '<span class="lead-pill">AJÁNLAT</span>' : ''}
               </span>
             </div>
-            <div class="session-meta">${esc(s.lastAt || "")} · ${Number(s.messageCount || 0)} üzenet · ${esc(s.projectType || "")}</div>
+            <div class="session-meta">${esc(formatDateTime(s.lastAt))} · ${Number(s.messageCount || 0)} üzenet · ${esc(s.projectType || "")}</div>
             <div class="session-snippet">${esc((s.lastAdminReply || s.lastAssistantReply || s.lastUserMessage || "").slice(0,120))}</div>
           </button>
         `;
@@ -446,7 +467,7 @@
         const atBottom = messagesEl.scrollTop + messagesEl.clientHeight >= messagesEl.scrollHeight - 80;
         messagesEl.innerHTML = messages.map((m) => `
           <div class="msg ${esc(m.role)}">
-            <small>${esc(m.role)} · ${esc(m.at || "")}</small>
+            <small>${esc(m.role)} · ${esc(formatDateTime(m.at))}</small>
             ${esc(m.content || "")}
           </div>
         `).join("");
