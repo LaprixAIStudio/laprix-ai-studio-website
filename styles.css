@@ -1277,3 +1277,17 @@ h3 {
   }
 }
 
+/* Laprix AI Studio V1.37 – why section text wrapping hotfix */
+.why-item,
+.why-item div,
+.why-item p,
+.why-item h3 {
+  min-width: 0;
+}
+
+.why-item p {
+  max-width: none;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
