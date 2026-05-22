@@ -1172,3 +1172,12 @@ h3 {
   }
 }
 
+
+/* Laprix AI Studio V1.19 copy polish support */
+.custom-dev-note {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
