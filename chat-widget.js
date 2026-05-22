@@ -25,28 +25,45 @@
   }
 
 
+  function hasLaprixAnalyticsConsent() {
+    return !!(window.LaprixCookieConsent && window.LaprixCookieConsent.hasAnalyticsConsent && window.LaprixCookieConsent.hasAnalyticsConsent());
+  }
+
+  function hasLaprixMarketingConsent() {
+    return !!(window.LaprixCookieConsent && window.LaprixCookieConsent.hasMarketingConsent && window.LaprixCookieConsent.hasMarketingConsent());
+  }
+
   function trackLaprixEvent(eventName, params = {}) {
     const payload = {
       event_category: "Laprix AI ChatLead",
       ...params,
     };
 
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: eventName,
-      ...payload,
-    });
+    // Belső UI eseményeket csak opcionális mérési hozzájárulás esetén küldünk külső mérésbe.
+    if (hasLaprixAnalyticsConsent()) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: eventName,
+        ...payload,
+      });
 
-    if (typeof window.gtag === "function") {
-      window.gtag("event", eventName, payload);
-
-      if (eventName === "laprix_lead_submitted" && ANALYTICS.googleAdsLeadSendTo) {
-        window.gtag("event", "conversion", {
-          send_to: ANALYTICS.googleAdsLeadSendTo,
-          value: ANALYTICS.leadValue || 1.0,
-          currency: ANALYTICS.currency || "HUF",
-        });
+      if (typeof window.gtag === "function") {
+        window.gtag("event", eventName, payload);
       }
+    }
+
+    // Google Ads konverzió csak marketing hozzájárulás után.
+    if (
+      eventName === "laprix_lead_submitted"
+      && ANALYTICS.googleAdsLeadSendTo
+      && hasLaprixMarketingConsent()
+      && typeof window.gtag === "function"
+    ) {
+      window.gtag("event", "conversion", {
+        send_to: ANALYTICS.googleAdsLeadSendTo,
+        value: ANALYTICS.leadValue || 1.0,
+        currency: ANALYTICS.currency || "HUF",
+      });
     }
   }
 

@@ -1330,6 +1330,21 @@ h3 {
 
 
   </style>
+  <!-- Laprix Cookie Consent / Google Consent Mode alap -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    window.LAPRIX_GOOGLE_ADS_ID = "AW-18144333266";
+
+    gtag("consent", "default", {
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+      analytics_storage: "denied",
+      functionality_storage: "granted",
+      security_storage: "granted"
+    });
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#main">Ugrás a tartalomra</a>
@@ -1379,11 +1394,12 @@ h3 {
           <a href="#celok">3. Célok és jogalapok</a>
           <a href="#chat">4. AI chat és emberi átvétel</a>
           <a href="#ajanlatkeres">5. Ajánlatkérés</a>
-          <a href="#technikai">6. Technikai adatok</a>
-          <a href="#megorzes">7. Megőrzési idők</a>
-          <a href="#tovabbitas">8. Adattovábbítás</a>
-          <a href="#jogok">9. Érintetti jogok</a>
-          <a href="#kapcsolat">10. Kapcsolat</a>
+          <a href="#sutik">6. Sütik és hozzájárulás</a>
+          <a href="#technikai">7. Technikai adatok</a>
+          <a href="#megorzes">8. Megőrzési idők</a>
+          <a href="#tovabbitas">9. Adattovábbítás</a>
+          <a href="#jogok">10. Érintetti jogok</a>
+          <a href="#kapcsolat">11. Kapcsolat</a>
         </aside>
 
         <div>
@@ -1518,8 +1534,64 @@ h3 {
             </p>
           </article>
 
+
+          <article id="sutik" class="privacy-card">
+            <h2>6. Sütik, localStorage és hozzájárulás</h2>
+            <p>
+              A weboldalon sütik vagy böngészőben tárolt technikai adatok használata történhet. Ezek egy része
+              a működéshez szükséges, más részük csak hozzájárulás alapján aktiválódik.
+            </p>
+
+            <div class="privacy-table-wrap">
+              <table class="privacy-table">
+                <thead>
+                  <tr>
+                    <th>Kategória</th>
+                    <th>Cél</th>
+                    <th>Állapot</th>
+                    <th>Példa</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Szükséges</td>
+                    <td>Weboldal működése, chat session, alap beállítások, biztonság.</td>
+                    <td>Mindig aktív</td>
+                    <td>chat session azonosító, cookie hozzájárulási választás tárolása.</td>
+                  </tr>
+                  <tr>
+                    <td>Analitika</td>
+                    <td>Látogatottság és használat mérése, későbbi analitikai eszközök támogatása.</td>
+                    <td>Csak hozzájárulással</td>
+                    <td>összesített oldalhasználati mérés.</td>
+                  </tr>
+                  <tr>
+                    <td>Marketing / Google Ads</td>
+                    <td>Google Ads konverziómérés, ajánlatkérések és hirdetési eredményesség mérése.</td>
+                    <td>Csak hozzájárulással</td>
+                    <td>Google Ads tag, konverziós esemény ajánlatkéréskor.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>
+              A látogató a cookie bannerben választhat: <strong>Elfogadom</strong>,
+              <strong>Csak szükségeseket</strong>, <strong>Elutasítom</strong> vagy részletes
+              <strong>Beállítások</strong>. A választás a böngésző localStorage tárhelyében kerül tárolásra.
+            </p>
+            <p>
+              A Google Ads / konverziómérés a weboldalon csak marketing hozzájárulás után töltődik be teljesen.
+              A szükséges technikai működés, például a chat session és a hozzájárulási választás tárolása,
+              a weboldal működéséhez szükséges.
+            </p>
+            <p>
+              A beállítások később is módosíthatók a láblécben található <a href="#" data-cookie-settings>Süti beállítások</a> linken.
+            </p>
+          </article>
+
           <article id="technikai" class="privacy-card">
-            <h2>6. Technikai működés, sütik és mérés</h2>
+            <h2>7. Technikai működés és mérés</h2>
             <p>
               A weboldal működéséhez szükséges technikai adatok kezelése történhet a biztonság, megjelenítés,
               hibakeresés és szolgáltatásnyújtás érdekében. Ilyenek lehetnek például a szervernaplók, IP-címek,
@@ -1532,7 +1604,7 @@ h3 {
           </article>
 
           <article id="megorzes" class="privacy-card">
-            <h2>7. Megőrzési idők</h2>
+            <h2>8. Megőrzési idők</h2>
             <div class="privacy-table-wrap">
               <table class="privacy-table">
                 <thead>
@@ -1568,7 +1640,7 @@ h3 {
           </article>
 
           <article id="tovabbitas" class="privacy-card">
-            <h2>8. Adatfeldolgozók és adattovábbítás</h2>
+            <h2>9. Adatfeldolgozók és adattovábbítás</h2>
             <p>A szolgáltatás működtetéséhez az alábbi típusú szolgáltatók igénybevétele történhet:</p>
             <ul>
               <li><strong>tárhely / üzemeltetés:</strong> weboldal és backend futtatása, naplózás, technikai működés;</li>
@@ -1584,7 +1656,7 @@ h3 {
           </article>
 
           <article id="jogok" class="privacy-card">
-            <h2>9. Az érintettek jogai</h2>
+            <h2>10. Az érintettek jogai</h2>
             <p>Az adatkezeléssel kapcsolatban az alábbi jogok illethetnek meg:</p>
             <ul>
               <li>tájékoztatás és hozzáférés kérése a kezelt személyes adatokhoz;</li>
@@ -1602,7 +1674,7 @@ h3 {
           </article>
 
           <article id="kapcsolat" class="privacy-card">
-            <h2>10. Kapcsolat adatvédelmi ügyben</h2>
+            <h2>11. Kapcsolat adatvédelmi ügyben</h2>
             <p>
               Adatvédelmi kérdés vagy kérelem esetén ezen az e-mail címen tudsz írni:
               <a href="mailto:hello@laprixaistudio.hu">hello@laprixaistudio.hu</a>
@@ -1633,6 +1705,7 @@ h3 {
         <strong>Linkek</strong>
         <p>
           <a href="/adatkezeles.html">Adatkezelési tájékoztató</a><br />
+          <a href="#" data-cookie-settings>Süti beállítások</a><br />
           <a href="/arlista.html">Árlista</a><br />
           <a href="mailto:hello@laprixaistudio.hu">Kapcsolat</a>
         </p>
@@ -1640,6 +1713,7 @@ h3 {
     </div>
   </footer>
 
+  <script src="/cookie-consent.js"></script>
   <script src="/chat-config.js"></script>
   <script src="/chat-widget.js"></script>
 </body>
