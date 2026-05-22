@@ -265,7 +265,7 @@
       closeLeadForm();
       addMessage(
         "assistant",
-        "Köszönöm, az ajánlatkérés beérkezett. Átnézzük az igényt, és e-mailben jelentkezünk."
+        "Köszönöm, az ajánlatkérés beérkezett. Átnézzük az igényt, összevetjük az árlistában szereplő irányárakkal, és e-mailben jelentkezünk előzetes javaslattal vagy pontosító kérdésekkel."
       );
     } catch (error) {
       addMessage(
@@ -320,7 +320,7 @@
 
       <form class="laprix-chat-form">
         <input class="laprix-chat-input" type="text" maxlength="700" placeholder="Írd be a kérdésed..." autocomplete="off" />
-        <button class="laprix-chat-send" type="submit">Küldés</button>
+        <button class="laprix-chat-send" type="submit">Ajánlatkérés elküldése</button>
       </form>
 
       <div class="laprix-chat-lead-form-wrap">
@@ -330,7 +330,7 @@
             <button type="button" class="laprix-chat-lead-close" aria-label="Ajánlatkérő bezárása">×</button>
           </div>
           <p class="laprix-chat-lead-helper">
-            Írd le röviden, mire lenne szükséged: új weboldalra, meglévő weboldal kezelésére, AI megoldásra, miniwebre, automatizálásra vagy egyedi programra.
+            Írd le röviden, mire lenne szükséged: új weboldalra, meglévő weboldal kezelésére, FoglalóFlow-ra, AI chatbotra, automatizálásra vagy egyedi programra. Az árlista irányadó, a végleges ajánlat az igény alapján készül.
           </p>
           <label>Név*<input name="name" required maxlength="120" /></label>
           <label>E-mail*<input name="email" required type="email" maxlength="160" /></label>
@@ -345,10 +345,12 @@
               <option value="Egyedi AI/programfejlesztés">Egyedi AI/programfejlesztés</option>
               <option value="Automatizálás">Automatizálás</option>
               <option value="Belső admin rendszer">Belső admin rendszer</option>
+              <option value="Nem tudom / segítséget kérek">Nem tudom / segítséget kérek</option>
               <option value="Egyéb">Egyéb</option>
             </select>
+            <small class="laprix-form-hint">Az árlista tájékoztató jellegű. A végleges ár az igény, a határidő és a meglévő rendszer állapota alapján készül.</small>
           </label>
-          <label>Rövid leírás*<textarea name="message" required maxlength="1800" rows="4" placeholder="Példa: új weboldalt szeretnék / meglévő weboldalam kezelését kérem / AI megoldás kell. Írd le röviden a célt, a jelenlegi helyzetet és a fontos funkciókat."></textarea></label>
+          <label>Rövid leírás*<textarea name="message" required maxlength="1800" rows="4" placeholder="Példa: új weboldalt szeretnék / meglévő weboldalam kezelését kérem / FoglalóFlow kell / AI chatbotot szeretnék. Írd le röviden: mi a cél, van-e jelenlegi weboldal link, milyen funkciók kellenek, mennyire sürgős."></textarea></label>
           <button class="button primary" type="submit">Ajánlatkérés elküldése</button>
           <a class="laprix-chat-mail-link" href="mailto:${CONTACT_EMAIL}?subject=${mailtoSubject}&body=${mailtoBody}">Inkább e-mailben írok</a>
         </form>
@@ -380,7 +382,7 @@
         if (button.dataset.lead === "true") {
           addMessage(
             "assistant",
-            "Rendben. Megnyitottam az ajánlatkérő űrlapot. Írd le röviden, hogy weboldal készítésről, meglévő weboldal kezeléséről vagy más digitális megoldásról van szó, és e-mailben jelentkezünk."
+            "Rendben. Megnyitottam az ajánlatkérő űrlapot. Írd le röviden, hogy weboldal készítésről, meglévő weboldal kezeléséről, FoglalóFlow-ról, AI chatről vagy más digitális megoldásról van szó. E-mailben jelentkezünk előzetes iránnyal vagy ajánlattal."
           );
           openLeadForm();
           return;
@@ -392,7 +394,7 @@
 
     addMessage(
       "assistant",
-      "Szia! A Laprix AI Studio asszisztense vagyok. Kérdezhetsz a FoglalóFlow-ról, PostPilot HU-ról, Kiadviáról, weboldal készítésről, meglévő weboldal kezeléséről vagy egyedi AI/programfejlesztésről."
+      "Szia! A Laprix AI Studio asszisztense vagyok. Segítek eligazodni weboldal készítésben, meglévő weboldal kezelésben, FoglalóFlow-ban, AI chatbotban vagy egyedi programfejlesztésben. Ajánlatkérésnél az árlista csak irányadó: a pontos ár az igény alapján készül."
     );
   }
 
@@ -428,7 +430,7 @@
 
       addMessage(
         "assistant",
-        "Megnyitottam az ajánlatkérő űrlapot. Írd le röviden, mire lenne szükséged: új weboldalra, meglévő weboldal kezelésére, AI megoldásra, miniwebre, automatizálásra vagy egyedi programra."
+        "Megnyitottam az ajánlatkérő űrlapot. Írd le röviden, mire lenne szükséged: új weboldalra, meglévő weboldal kezelésére, FoglalóFlow-ra, AI chatbotra, automatizálásra vagy egyedi programra. Az árlista irányadó, a végleges ajánlat az igény alapján készül."
       );
       openLeadForm();
     });
