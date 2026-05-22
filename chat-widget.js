@@ -405,33 +405,10 @@
   async function closeAndDeleteChatSession() {
     const sessionIdToDelete = state.sessionId;
 
+    // Először vizuálisan zárjuk be, hogy a látogató azonnal reagálást lásson.
     toggleChat(false);
 
-    if (!API_BASE_URL || !sessionIdToDelete) {
-      try { localStorage.removeItem("laprix_chat_session_id"); } catch (error) {}
-      state.sessionId = getOrCreateLaprixId("laprix_chat_session_id", "chat");
-      state.messages = [];
-      return;
-    }
-
-    try {
-      const url = `${API_BASE_URL}/api/chat/session/${encodeURIComponent(sessionIdToDelete)}/close`;
-      const payload = JSON.stringify({ visitorId: state.visitorId });
-
-      if (navigator.sendBeacon) {
-        const blob = new Blob([payload], { type: "application/json" });
-        navigator.sendBeacon(url, blob);
-      } else {
-        await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json; charset=utf-8" },
-          body: payload,
-          keepalive: true,
-        });
-      }
-    } catch (error) {
-      // Bezáráskor nem zavarjuk a látogatót hibaüzenettel.
-    } finally {
+    function resetLocalChatSession() {
       try { localStorage.removeItem("laprix_chat_session_id"); } catch (error) {}
       state.sessionId = getOrCreateLaprixId("laprix_chat_session_id", "chat");
       state.messages = [];
@@ -439,6 +416,38 @@
 
       const list = document.querySelector(".laprix-chat-messages");
       if (list) list.innerHTML = "";
+    }
+
+    if (!API_BASE_URL || !sessionIdToDelete) {
+      resetLocalChatSession();
+      return;
+    }
+
+    const closeUrl = `${API_BASE_URL}/api/chat/session/${encodeURIComponent(sessionIdToDelete)}/close`;
+    const pixelUrl = `${API_BASE_URL}/api/chat/session/${encodeURIComponent(sessionIdToDelete)}/close-pixel?visitorId=${encodeURIComponent(state.visitorId)}&t=${Date.now()}`;
+    const payload = JSON.stringify({ visitorId: state.visitorId });
+
+    // 1) Erős fallback: kép/GET alapú törlési jel.
+    // Ez X gombos bezárásnál megbízhatóbb, mert nem igényel CORS preflightot.
+    try {
+      const img = new Image();
+      img.referrerPolicy = "no-referrer-when-downgrade";
+      img.src = pixelUrl;
+    } catch (error) {}
+
+    // 2) Normál POST törlés is megy, ha a böngésző engedi.
+    try {
+      await fetch(closeUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: payload,
+        keepalive: true,
+        cache: "no-store",
+      });
+    } catch (error) {
+      // Bezáráskor nem mutatunk hibaüzenetet a látogatónak.
+    } finally {
+      resetLocalChatSession();
     }
   }
 
