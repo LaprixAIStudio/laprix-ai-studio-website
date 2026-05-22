@@ -481,7 +481,7 @@
       <div class="top">
         <div>
           <h1>Laprix Chat Admin</h1>
-          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.34 – admin végső polírozás</div>
+          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.39 – chat archívum</div>
         </div>
         <div class="toolbar">
           <button class="secondary" id="refreshBtn">Frissítés</button>
@@ -547,6 +547,7 @@
           <button class="secondary" data-quick-view="new">Csak új</button>
           <button class="secondary" data-quick-view="hot">Forró leadek</button>
           <button class="secondary" data-quick-view="quote">Ajánlat kiküldve</button>
+          <button class="secondary" data-quick-view="closed">Archivált / lezárt</button>
           <button class="secondary" data-quick-view="unread">Új üzenetes</button>
         </div>
 
@@ -820,6 +821,7 @@
       if (quickView === "new" && (s.status || "new") !== "new") return false;
       if (quickView === "hot" && (s.rating || "unknown") !== "hot") return false;
       if (quickView === "quote" && (s.status || "new") !== "quote_sent") return false;
+      if (quickView === "closed" && (s.status || "new") !== "closed") return false;
       if (quickView === "unread" && !unreadSessionIds.has(s.sessionId)) return false;
 
       if (status !== "all" && (s.status || "new") !== status) return false;
@@ -1140,7 +1142,7 @@
 
     function clearAlert() {
       alertBar.classList.remove("show");
-      adminStateBadge.innerHTML = '<span class="dot"></span> V1.34 – admin végső polírozás';
+      adminStateBadge.innerHTML = '<span class="dot"></span> V1.39 – chat archívum';
       stopTitleBlink();
     }
 
@@ -1290,6 +1292,7 @@
               <div class="customer-field"><small>Státusz</small><span>${esc(statusLabel(s.status || "new"))}</span></div>
               <div class="customer-field"><small>Lead minősítés</small><span>${esc(ratingLabel(s.rating || (s.leadSubmitted ? "hot" : "unknown")))}</span></div>
               <div class="customer-field"><small>Meta frissítve</small><span>${esc(formatDateTime(s.metaUpdatedAt) || "Nincs")}</span></div>
+              <div class="customer-field"><small>Lezárva / archiválva</small><span>${esc(formatDateTime(s.closedAt) || "Nincs")}</span></div>
               <div class="customer-field"><small>Session</small><span>${esc(s.sessionId)}</span></div>
               <div class="customer-field"><small>IP</small><span>${esc(s.ip || "Nincs")}</span></div>
             </div>
@@ -1375,7 +1378,7 @@
     async function deleteChat() {
       if (!activeSessionId) return alert("Előbb válassz beszélgetést.");
 
-      const confirmed = confirm("Biztosan törlöd ezt a chat beszélgetést? Ez eltávolítja a beszélgetést az admin listából.");
+      const confirmed = confirm("Biztosan végleg törlöd ezt a chat beszélgetést? Archiválás helyett ez ténylegesen eltávolítja a beszélgetést az admin listából.");
       if (!confirmed) return;
 
       await apiPost("/api/admin/chat-sessions/" + encodeURIComponent(activeSessionId) + "/delete");

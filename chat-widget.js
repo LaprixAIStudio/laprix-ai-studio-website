@@ -419,7 +419,7 @@
   }
 
 
-  async function closeAndDeleteChatSession() {
+  async function closeAndArchiveChatSession() {
     const sessionIdToDelete = state.sessionId;
 
     // Először vizuálisan zárjuk be, hogy a látogató azonnal reagálást lásson.
@@ -444,7 +444,7 @@
     const pixelUrl = `${API_BASE_URL}/api/chat/session/${encodeURIComponent(sessionIdToDelete)}/close-pixel?visitorId=${encodeURIComponent(state.visitorId)}&t=${Date.now()}`;
     const payload = JSON.stringify({ visitorId: state.visitorId });
 
-    // 1) Erős fallback: kép/GET alapú törlési jel.
+    // 1) Erős fallback: kép/GET alapú archiválási jel.
     // Ez X gombos bezárásnál megbízhatóbb, mert nem igényel CORS preflightot.
     try {
       const img = new Image();
@@ -452,7 +452,7 @@
       img.src = pixelUrl;
     } catch (error) {}
 
-    // 2) Normál POST törlés is megy, ha a böngésző engedi.
+    // 2) Normál POST archiválás is megy, ha a böngésző engedi.
     try {
       await fetch(closeUrl, {
         method: "POST",
@@ -547,7 +547,7 @@
       </div>
 
       <p class="laprix-chat-privacy">
-        A chat AI backenddel működik. A beszélgetés bezáráskor törlődik a chat naplóból. Ne adj meg jelszót vagy érzékeny adatot.
+        A chat AI backenddel működik. A beszélgetés ügyfélszolgálati célból visszanézhető lehet. Ne adj meg jelszót vagy érzékeny adatot.
         <a href="${PRIVACY_URL}" target="_blank" rel="noopener">Adatkezelés</a>
       </p>
     `;
@@ -556,7 +556,7 @@
     root.appendChild(launcher);
     document.body.appendChild(root);
 
-    document.querySelector(".laprix-chat-close").addEventListener("click", closeAndDeleteChatSession);
+    document.querySelector(".laprix-chat-close").addEventListener("click", closeAndArchiveChatSession);
     document.querySelector(".laprix-chat-lead-close").addEventListener("click", closeLeadForm);
 
     document.querySelector(".laprix-chat-form").addEventListener("submit", (event) => {
