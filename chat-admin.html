@@ -126,6 +126,66 @@
       user-select:none;
     }
     .toggle input { min-height:auto; width:auto; }
+
+    .admin-meta {
+      padding: 16px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.035);
+      display: grid;
+      gap: 10px;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .meta-grid label,
+    .admin-meta label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: .84rem;
+      font-weight: 800;
+    }
+    select {
+      min-height: 42px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(15,23,42,.78);
+      color: var(--text);
+      padding: 0 12px;
+      font: inherit;
+    }
+    .internal-note {
+      min-height: 82px;
+      font-size: .92rem;
+    }
+    .status-pill,
+    .rating-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: .72rem;
+      font-weight: 950;
+      white-space: nowrap;
+      margin-left: 4px;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+    .status-new { background: rgba(56,217,255,.16); color: #b7f4ff; }
+    .status-in_progress { background: rgba(250,204,21,.16); color: #fff4bf; }
+    .status-quote_sent { background: rgba(52,211,153,.16); color: #c6ffe8; }
+    .status-closed { background: rgba(148,163,184,.16); color: #dbe5f2; }
+    .status-spam,
+    .status-not_relevant { background: rgba(251,113,133,.16); color: #ffd6dd; }
+    .rating-hot { background: rgba(251,113,133,.22); color: #ffd6dd; }
+    .rating-warm { background: rgba(250,204,21,.18); color: #fff4bf; }
+    .rating-cold { background: rgba(148,163,184,.16); color: #dbe5f2; }
+    .rating-customer { background: rgba(52,211,153,.18); color: #c6ffe8; }
+    .rating-unknown { background: rgba(255,255,255,.06); color: var(--muted); }
+
     @media (max-width:920px){
       .grid{grid-template-columns:1fr}
       .login{grid-template-columns:1fr}
@@ -140,7 +200,7 @@
       <div class="top">
         <div>
           <h1>Laprix Chat Admin</h1>
-          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.28 – háttér értesítések</div>
+          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.30 – státuszok és jegyzetek</div>
         </div>
         <div class="toolbar">
           <button class="secondary" id="refreshBtn">Frissítés</button>
@@ -190,6 +250,41 @@
           </div>
         </div>
         <div id="sessionDetails" class="session-details">Válassz egy beszélgetést bal oldalt.</div>
+        
+        <div class="admin-meta">
+          <div class="meta-grid">
+            <label>
+              Státusz
+              <select id="sessionStatus">
+                <option value="new">Új</option>
+                <option value="in_progress">Folyamatban</option>
+                <option value="quote_sent">Ajánlat kiküldve</option>
+                <option value="closed">Lezárva</option>
+                <option value="spam">Spam</option>
+                <option value="not_relevant">Nem releváns</option>
+              </select>
+            </label>
+            <label>
+              Lead minősítés
+              <select id="sessionRating">
+                <option value="unknown">Nincs minősítve</option>
+                <option value="cold">Hideg</option>
+                <option value="warm">Meleg</option>
+                <option value="hot">Forró</option>
+                <option value="customer">Ügyfél lett</option>
+              </select>
+            </label>
+          </div>
+          <label>
+            Belső admin jegyzet
+            <textarea id="internalNote" class="internal-note" placeholder="Csak adminnak látszik. Pl. visszahívni, ajánlatot küldeni, nem releváns, árérzékeny, sürgős..."></textarea>
+          </label>
+          <div class="reply-actions">
+            <button class="secondary" id="clearMetaBtn">Jegyzet törlése</button>
+            <button id="saveMetaBtn">Státusz / jegyzet mentése</button>
+          </div>
+        </div>
+
         <div id="messages" class="messages"><div class="empty">Nincs kiválasztott beszélgetés.</div></div>
         <div class="reply-box">
           <div class="hint">Ha átvetted a beszélgetést, ide írhatsz választ. A látogató chatjében „Laprix munkatárs” válaszként jelenik meg.</div>
@@ -218,6 +313,9 @@
     const activeTitleEl = document.getElementById("activeTitle");
     const modeBadge = document.getElementById("modeBadge");
     const replyText = document.getElementById("replyText");
+    const sessionStatus = document.getElementById("sessionStatus");
+    const sessionRating = document.getElementById("sessionRating");
+    const internalNote = document.getElementById("internalNote");
     const alertBar = document.getElementById("alertBar");
     const alertText = document.getElementById("alertText");
     const soundToggle = document.getElementById("soundToggle");
@@ -274,6 +372,40 @@
     function persistUnread(){
       localStorage.setItem("laprix_admin_unread_sessions", JSON.stringify([...unreadSessionIds]));
     }
+
+
+    const STATUS_LABELS = {
+      new: "Új",
+      in_progress: "Folyamatban",
+      quote_sent: "Ajánlat kiküldve",
+      closed: "Lezárva",
+      spam: "Spam",
+      not_relevant: "Nem releváns",
+    };
+    const RATING_LABELS = {
+      unknown: "Nincs minősítve",
+      cold: "Hideg",
+      warm: "Meleg",
+      hot: "Forró",
+      customer: "Ügyfél lett",
+    };
+
+    function statusLabel(value) {
+      return STATUS_LABELS[value] || STATUS_LABELS.new;
+    }
+
+    function ratingLabel(value) {
+      return RATING_LABELS[value] || RATING_LABELS.unknown;
+    }
+
+    function statusClass(value) {
+      return "status-" + String(value || "new").replace(/[^a-zA-Z0-9_-]/g, "");
+    }
+
+    function ratingClass(value) {
+      return "rating-" + String(value || "unknown").replace(/[^a-zA-Z0-9_-]/g, "");
+    }
+
 
     async function apiGet(path) {
       const response = await fetch(getApiBase() + path, { headers: { Authorization: "Bearer " + getToken() } });
@@ -377,7 +509,7 @@
 
     function clearAlert() {
       alertBar.classList.remove("show");
-      adminStateBadge.innerHTML = '<span class="dot"></span> V1.28 – háttér értesítések';
+      adminStateBadge.innerHTML = '<span class="dot"></span> V1.30 – státuszok és jegyzetek';
       stopTitleBlink();
     }
 
@@ -457,12 +589,15 @@
               <span>${title}</span>
               <span>
                 ${isUnread ? '<span class="new-pill">ÚJ</span>' : ''}
+                <span class="status-pill ${statusClass(s.status)}">${statusLabel(s.status)}</span>
+                ${s.rating && s.rating !== "unknown" ? `<span class="rating-pill ${ratingClass(s.rating)}">${ratingLabel(s.rating)}</span>` : ''}
                 ${s.sessionMode === "human" ? '<span class="human-pill">EMBER</span>' : ''}
                 ${s.leadSubmitted ? '<span class="lead-pill">AJÁNLAT</span>' : ''}
               </span>
             </div>
             <div class="session-meta">${esc(formatDateTime(s.lastAt))} · ${Number(s.messageCount || 0)} üzenet · ${esc(s.projectType || "")}</div>
             <div class="session-snippet">${esc((s.lastAdminReply || s.lastAssistantReply || s.lastUserMessage || "").slice(0,120))}</div>
+            ${s.internalNote ? `<div class="session-snippet">Jegyzet: ${esc(s.internalNote.slice(0,120))}</div>` : ""}
           </button>
         `;
       }).join("");
@@ -497,6 +632,9 @@
         const data = await apiGet("/api/admin/chat-sessions/" + encodeURIComponent(sessionId));
         const s = data.session || {};
         updateModeBadge(s.sessionMode || "ai");
+        sessionStatus.value = s.status || "new";
+        sessionRating.value = s.rating || "unknown";
+        internalNote.value = s.internalNote || "";
         activeTitleEl.textContent = s.leadSubmitted ? "Ajánlatkéréses beszélgetés" : "Beszélgetés";
 
         detailsEl.innerHTML = `
@@ -504,6 +642,9 @@
           ${s.leadName ? `<strong>Név:</strong> ${esc(s.leadName)}<br>` : ""}
           ${s.leadEmail ? `<strong>E-mail:</strong> ${esc(s.leadEmail)}<br>` : ""}
           ${s.projectType ? `<strong>Típus:</strong> ${esc(s.projectType)}<br>` : ""}
+          <strong>Státusz:</strong> ${esc(statusLabel(s.status || "new"))}<br>
+          <strong>Lead minősítés:</strong> ${esc(ratingLabel(s.rating || "unknown"))}<br>
+          ${s.metaUpdatedAt ? `<strong>Meta frissítve:</strong> ${esc(formatDateTime(s.metaUpdatedAt))}<br>` : ""}
           ${s.pageUrl ? `<strong>Oldal:</strong> <a href="${esc(s.pageUrl)}" target="_blank" rel="noreferrer">${esc(s.pageTitle || s.pageUrl)}</a><br>` : ""}
           ${s.ip ? `<strong>IP:</strong> ${esc(s.ip)}<br>` : ""}
         `;
@@ -552,6 +693,26 @@
     }
 
 
+
+    async function saveMeta() {
+      if (!activeSessionId) return alert("Előbb válassz beszélgetést.");
+
+      await apiPost("/api/admin/chat-sessions/" + encodeURIComponent(activeSessionId) + "/meta", {
+        status: sessionStatus.value,
+        rating: sessionRating.value,
+        internalNote: internalNote.value.trim(),
+      });
+
+      await loadSession(activeSessionId);
+      await loadSessions();
+    }
+
+    async function clearMetaNote() {
+      internalNote.value = "";
+      await saveMeta();
+    }
+
+
     async function deleteChat() {
       if (!activeSessionId) return alert("Előbb válassz beszélgetést.");
 
@@ -580,6 +741,8 @@
     document.getElementById("takeoverBtn").addEventListener("click", takeover);
     document.getElementById("releaseBtn").addEventListener("click", release);
     document.getElementById("deleteChatBtn").addEventListener("click", deleteChat);
+    document.getElementById("saveMetaBtn").addEventListener("click", saveMeta);
+    document.getElementById("clearMetaBtn").addEventListener("click", clearMetaNote);
     document.getElementById("sendReplyBtn").addEventListener("click", sendReply);
     document.getElementById("clearReplyBtn").addEventListener("click", () => { replyText.value = ""; });
     document.getElementById("clearAlertBtn").addEventListener("click", () => {
