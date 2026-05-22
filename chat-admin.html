@@ -140,7 +140,7 @@
       <div class="top">
         <div>
           <h1>Laprix Chat Admin</h1>
-          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.24 – admin értesítések aktívak</div>
+          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.25 – törlés + admin értesítések</div>
         </div>
         <div class="toolbar">
           <button class="secondary" id="refreshBtn">Frissítés</button>
@@ -185,6 +185,7 @@
             <span class="badge" id="modeBadge">mód: -</span>
             <button id="takeoverBtn">Átveszem</button>
             <button class="secondary" id="releaseBtn">Visszaadom az AI-nak</button>
+            <button class="danger" id="deleteChatBtn">Chat törlése</button>
           </div>
         </div>
         <div id="sessionDetails" class="session-details">Válassz egy beszélgetést bal oldalt.</div>
@@ -323,7 +324,7 @@
 
     function clearAlert() {
       alertBar.classList.remove("show");
-      adminStateBadge.innerHTML = '<span class="dot"></span> V1.24 – admin értesítések aktívak';
+      adminStateBadge.innerHTML = '<span class="dot"></span> V1.25 – törlés + admin értesítések';
       stopTitleBlink();
     }
 
@@ -479,6 +480,26 @@
       await loadSessions();
     }
 
+
+    async function deleteChat() {
+      if (!activeSessionId) return alert("Előbb válassz beszélgetést.");
+
+      const confirmed = confirm("Biztosan törlöd ezt a chat beszélgetést? Ez eltávolítja a beszélgetést az admin listából.");
+      if (!confirmed) return;
+
+      await apiPost("/api/admin/chat-sessions/" + encodeURIComponent(activeSessionId) + "/delete");
+      unreadSessionIds.delete(activeSessionId);
+      persistUnread();
+      activeSessionId = "";
+      activeSessionMode = "ai";
+      detailsEl.innerHTML = "Válassz egy beszélgetést bal oldalt.";
+      messagesEl.innerHTML = '<div class="empty">A beszélgetés törölve.</div>';
+      activeTitleEl.textContent = "Beszélgetés részletei";
+      updateModeBadge("ai");
+      await loadSessions();
+    }
+
+
     document.getElementById("saveBtn").addEventListener("click", () => {
       localStorage.setItem("laprix_admin_api_base", getApiBase());
       localStorage.setItem("laprix_admin_token", getToken());
@@ -487,6 +508,7 @@
     document.getElementById("refreshBtn").addEventListener("click", loadSessions);
     document.getElementById("takeoverBtn").addEventListener("click", takeover);
     document.getElementById("releaseBtn").addEventListener("click", release);
+    document.getElementById("deleteChatBtn").addEventListener("click", deleteChat);
     document.getElementById("sendReplyBtn").addEventListener("click", sendReply);
     document.getElementById("clearReplyBtn").addEventListener("click", () => { replyText.value = ""; });
     document.getElementById("clearAlertBtn").addEventListener("click", () => {

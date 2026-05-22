@@ -401,6 +401,48 @@
     }
   }
 
+
+  async function closeAndDeleteChatSession() {
+    const sessionIdToDelete = state.sessionId;
+
+    toggleChat(false);
+
+    if (!API_BASE_URL || !sessionIdToDelete) {
+      try { localStorage.removeItem("laprix_chat_session_id"); } catch (error) {}
+      state.sessionId = getOrCreateLaprixId("laprix_chat_session_id", "chat");
+      state.messages = [];
+      return;
+    }
+
+    try {
+      const url = `${API_BASE_URL}/api/chat/session/${encodeURIComponent(sessionIdToDelete)}/close`;
+      const payload = JSON.stringify({ visitorId: state.visitorId });
+
+      if (navigator.sendBeacon) {
+        const blob = new Blob([payload], { type: "application/json" });
+        navigator.sendBeacon(url, blob);
+      } else {
+        await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json; charset=utf-8" },
+          body: payload,
+          keepalive: true,
+        });
+      }
+    } catch (error) {
+      // Bezáráskor nem zavarjuk a látogatót hibaüzenettel.
+    } finally {
+      try { localStorage.removeItem("laprix_chat_session_id"); } catch (error) {}
+      state.sessionId = getOrCreateLaprixId("laprix_chat_session_id", "chat");
+      state.messages = [];
+      state.seenUpdateIds = new Set();
+
+      const list = document.querySelector(".laprix-chat-messages");
+      if (list) list.innerHTML = "";
+    }
+  }
+
+
   function buildWidget() {
     if (document.querySelector(".laprix-chat-root")) return;
     injectLeadFixStyles();
@@ -479,7 +521,7 @@
       </div>
 
       <p class="laprix-chat-privacy">
-        A chat AI backenddel működik. Ne adj meg jelszót vagy érzékeny adatot.
+        A chat AI backenddel működik. A beszélgetés bezáráskor törlődik a chat naplóból. Ne adj meg jelszót vagy érzékeny adatot.
         <a href="${PRIVACY_URL}" target="_blank" rel="noopener">Adatkezelés</a>
       </p>
     `;
@@ -488,7 +530,7 @@
     root.appendChild(launcher);
     document.body.appendChild(root);
 
-    document.querySelector(".laprix-chat-close").addEventListener("click", () => toggleChat(false));
+    document.querySelector(".laprix-chat-close").addEventListener("click", closeAndDeleteChatSession);
     document.querySelector(".laprix-chat-lead-close").addEventListener("click", closeLeadForm);
 
     document.querySelector(".laprix-chat-form").addEventListener("submit", (event) => {
