@@ -6,6 +6,25 @@
 
   const ANALYTICS = config.analytics || {};
 
+  function getOrCreateLaprixId(storageKey, prefix) {
+    try {
+      const existing = localStorage.getItem(storageKey);
+      if (existing) return existing;
+
+      const randomPart =
+        (window.crypto && window.crypto.randomUUID)
+          ? window.crypto.randomUUID()
+          : String(Date.now()) + "-" + Math.random().toString(16).slice(2);
+
+      const value = `${prefix}_${randomPart}`.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 90);
+      localStorage.setItem(storageKey, value);
+      return value;
+    } catch (error) {
+      return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 90);
+    }
+  }
+
+
   function trackLaprixEvent(eventName, params = {}) {
     const payload = {
       event_category: "Laprix AI ChatLead",
@@ -36,6 +55,8 @@
     isOpen: false,
     isBusy: false,
     messages: [],
+    sessionId: getOrCreateLaprixId("laprix_chat_session_id", "chat"),
+    visitorId: getOrCreateLaprixId("laprix_chat_visitor_id", "visitor"),
   };
 
   function injectLeadFixStyles() {
@@ -160,6 +181,9 @@
           message: cleanText,
           history,
           pageUrl: window.location.href,
+          pageTitle: document.title,
+          sessionId: state.sessionId,
+          visitorId: state.visitorId,
         }),
       });
 
@@ -168,6 +192,10 @@
       }
 
       const data = await response.json();
+      if (data.sessionId) {
+        state.sessionId = data.sessionId;
+        try { localStorage.setItem("laprix_chat_session_id", data.sessionId); } catch (error) {}
+      }
       addMessage("assistant", data.reply || "Nem érkezett válasz. Kérlek, próbáld újra.");
     } catch (error) {
       addMessage(
@@ -224,6 +252,8 @@
       projectType: String(formData.get("projectType") || "").trim(),
       message: String(formData.get("message") || "").trim(),
       pageUrl: window.location.href,
+      sessionId: state.sessionId,
+      visitorId: state.visitorId,
       conversation: state.messages.slice(-10),
     };
 
