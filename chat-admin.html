@@ -318,13 +318,17 @@
         Admin token
         <input id="lockAdminToken" type="password" placeholder="Admin token" autocomplete="current-password" />
       </label>
+      <label class="toggle" style="margin-top:14px;">
+        <input type="checkbox" id="rememberToken">
+        Token megjegyzése ezen a gépen
+      </label>
       <div class="lock-actions">
         <button id="lockLoginBtn">Belépés</button>
         <button class="secondary" id="lockClearBtn">Mentett token törlése</button>
       </div>
       <div class="lock-error" id="lockError"></div>
       <p class="hint">
-        Token nélkül az admin API nem ad vissza adatot. Ezt az oldalt a keresők számára noindex jelöléssel látjuk el.
+        Token nélkül az admin API nem ad vissza adatot. Alapból nincs automatikus belépés; csak akkor jegyzi meg a tokent, ha bepipálod. Ezt az oldalt a keresők számára noindex jelöléssel látjuk el.
       </p>
     </div>
   </div>
@@ -336,11 +340,12 @@
       <div class="top">
         <div>
           <h1>Laprix Chat Admin</h1>
-          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.31 – privát admin + szűrés</div>
+          <div class="badge" id="adminStateBadge"><span class="dot"></span> V1.32 – kilépés + nincs autologin</div>
         </div>
         <div class="toolbar">
           <button class="secondary" id="refreshBtn">Frissítés</button>
           <button class="secondary" id="notifyPermissionBtn">Böngésző értesítés</button>
+          <button class="danger" id="logoutBtn">Kilépés</button>
           <a class="badge" href="/" style="text-decoration:none">← Főoldal</a>
         </div>
       </div>
@@ -487,6 +492,8 @@
     const lockApiBase = document.getElementById("lockApiBase");
     const lockAdminToken = document.getElementById("lockAdminToken");
     const lockError = document.getElementById("lockError");
+    const rememberToken = document.getElementById("rememberToken");
+    const logoutBtn = document.getElementById("logoutBtn");
     const sessionSearch = document.getElementById("sessionSearch");
     const statusFilter = document.getElementById("statusFilter");
     const ratingFilter = document.getElementById("ratingFilter");
@@ -504,10 +511,17 @@
     let windowHasFocus = document.hasFocus();
     let lastNotificationAt = 0;
 
+    // V1.32: régi automatikus beléptetést megszüntetjük.
+    // A korábbi V1.31 token kulcsot töröljük, hogy ne léptessen be magától.
+    try { localStorage.removeItem("laprix_admin_token"); } catch (error) {}
+
     apiBaseInput.value = localStorage.getItem("laprix_admin_api_base") || defaultApi;
-    tokenInput.value = localStorage.getItem("laprix_admin_token") || "";
+    tokenInput.value = sessionStorage.getItem("laprix_admin_session_token") || "";
     lockApiBase.value = apiBaseInput.value;
-    lockAdminToken.value = tokenInput.value;
+
+    const rememberedToken = localStorage.getItem("laprix_admin_remembered_token_v132") || "";
+    lockAdminToken.value = rememberedToken || "";
+    rememberToken.checked = !!rememberedToken;
     soundToggle.checked = localStorage.getItem("laprix_admin_sound_enabled") === "true";
     desktopToggle.checked = localStorage.getItem("laprix_admin_desktop_enabled") === "true";
     titleToggle.checked = localStorage.getItem("laprix_admin_title_enabled") !== "false";
@@ -574,7 +588,14 @@
         }
 
         localStorage.setItem("laprix_admin_api_base", apiBase);
-        localStorage.setItem("laprix_admin_token", token);
+        sessionStorage.setItem("laprix_admin_session_token", token);
+
+        if (rememberToken.checked) {
+          localStorage.setItem("laprix_admin_remembered_token_v132", token);
+        } else {
+          localStorage.removeItem("laprix_admin_remembered_token_v132");
+        }
+
         apiBaseInput.value = apiBase;
         tokenInput.value = token;
         lockError.style.display = "none";
@@ -587,9 +608,25 @@
     }
 
     function logoutAdmin() {
+      sessionStorage.removeItem("laprix_admin_session_token");
       localStorage.removeItem("laprix_admin_token");
+      localStorage.removeItem("laprix_admin_remembered_token_v132");
+
       tokenInput.value = "";
       lockAdminToken.value = "";
+      rememberToken.checked = false;
+
+      activeSessionId = "";
+      sessions = [];
+      filteredSessions = [];
+      previousSessionMap = new Map();
+      unreadSessionIds.clear();
+      persistUnread();
+
+      sessionsEl.innerHTML = '<div class="empty">Kiléptél. Add meg újra az admin tokent.</div>';
+      messagesEl.innerHTML = '<div class="empty">Nincs kiválasztott beszélgetés.</div>';
+      detailsEl.innerHTML = "Válassz egy beszélgetést bal oldalt.";
+      sessionCountEl.textContent = "0 db";
       setLocked(true);
     }
 
@@ -789,7 +826,7 @@
 
     function clearAlert() {
       alertBar.classList.remove("show");
-      adminStateBadge.innerHTML = '<span class="dot"></span> V1.31 – privát admin + szűrés';
+      adminStateBadge.innerHTML = '<span class="dot"></span> V1.32 – kilépés + nincs autologin';
       stopTitleBlink();
     }
 
@@ -1029,6 +1066,7 @@
       lockAdminToken.value = getToken();
       verifyAdminToken();
     });
+    logoutBtn.addEventListener("click", logoutAdmin);
     document.getElementById("lockLoginBtn").addEventListener("click", verifyAdminToken);
     document.getElementById("lockClearBtn").addEventListener("click", logoutAdmin);
     lockAdminToken.addEventListener("keydown", (event) => {
@@ -1082,8 +1120,11 @@
       if (!document.hidden && !unreadSessionIds.size) clearAlert();
     });
 
+    // V1.32: nincs automatikus belépés localStorage alapján.
+    // Csak az adott böngészőfül session tokenjével marad belépve frissítés után.
     if (apiBaseInput.value && tokenInput.value) {
       setLocked(true);
+      lockAdminToken.value = tokenInput.value;
       verifyAdminToken();
     } else {
       setLocked(true);
