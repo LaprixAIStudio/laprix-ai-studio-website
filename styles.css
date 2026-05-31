@@ -1481,3 +1481,19 @@ h3 {
   }
 }
 
+
+/* Laprix AI Studio V1.43 – Real reference asset polish */
+.pc-preview-image-wrap {
+  background: rgba(255,255,255,0.03);
+}
+
+.pc-preview-card {
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.pc-preview-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 217, 255, 0.28);
+  box-shadow: 0 18px 40px rgba(8, 15, 30, 0.35);
+}
+

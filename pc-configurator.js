@@ -470,6 +470,199 @@ Fontos: ez nem végleges ajánlat. A végleges konfigurációt, árat, előleget
     return base[fieldKey] || `Kiválasztott opció: ${label}`;
   }
 
+
+  const PREVIEW_ASSET_MAP = {
+    cpuBrand: {
+      amd: "/assets/pc-references/amd-platform.png",
+      intel: "/assets/pc-references/intel-platform.png"
+    },
+    platform: {
+      am4_ddr4: "/assets/pc-references/am4-ddr4.png",
+      am5_ddr5: "/assets/pc-references/am5-ddr5.png",
+      lga1700_ddr4: "/assets/pc-references/lga1700-ddr4.png",
+      lga1700_ddr5: "/assets/pc-references/lga1700-ddr5.png",
+      lga1851_ddr5: "/assets/pc-references/lga1851-ddr5.png"
+    },
+    motherboard: {
+      default: "/assets/pc-references/am5-ddr5.png"
+    },
+    gpu: {
+      nvidia_prefer: "/assets/pc-references/nvidia-gpu.png",
+      amd_prefer: "/assets/pc-references/amd-gpu.png",
+      workstation: "/assets/pc-references/workstation-gpu.png",
+      entry: "/assets/pc-references/nvidia-gpu.png",
+      mid: "/assets/pc-references/nvidia-gpu.png",
+      upper: "/assets/pc-references/nvidia-gpu.png",
+      high: "/assets/pc-references/workstation-gpu.png"
+    },
+    gpuTarget: {
+      "1080p_medium": "/assets/pc-references/monitor-1080p.png",
+      "1080p_high": "/assets/pc-references/monitor-1080p.png",
+      "1440p_high": "/assets/pc-references/monitor-1440p.png",
+      "4k": "/assets/pc-references/monitor-4k.png",
+      "ai_vram": "/assets/pc-references/workstation-gpu.png",
+      "cuda": "/assets/pc-references/nvidia-gpu.png"
+    },
+    vram: {
+      "8gb": "/assets/pc-references/nvidia-gpu.png",
+      "12gb": "/assets/pc-references/nvidia-gpu.png",
+      "16gb": "/assets/pc-references/workstation-gpu.png",
+      "24gb_plus": "/assets/pc-references/workstation-gpu.png"
+    },
+    targetResolution: {
+      "1080p": "/assets/pc-references/monitor-1080p.png",
+      "1440p": "/assets/pc-references/monitor-1440p.png",
+      "4k": "/assets/pc-references/monitor-4k.png",
+      "multi_monitor": "/assets/pc-references/monitor-1440p.png"
+    },
+    fpsTarget: {
+      high_refresh: "/assets/pc-references/monitor-1440p.png",
+      competitive: "/assets/pc-references/monitor-1080p.png"
+    },
+    storage: {
+      "500gb": "/assets/pc-references/nvme-ssd.png",
+      "1tb": "/assets/pc-references/nvme-ssd.png",
+      "2tb": "/assets/pc-references/nvme-ssd.png",
+      "4tb": "/assets/pc-references/nvme-ssd.png",
+      "2tb_plus": "/assets/pc-references/multi-storage.png"
+    },
+    secondaryStorage: {
+      "1tb_ssd": "/assets/pc-references/nvme-ssd.png",
+      "2tb_ssd": "/assets/pc-references/nvme-ssd.png",
+      "4tb_hdd": "/assets/pc-references/multi-storage.png",
+      "8tb_hdd": "/assets/pc-references/multi-storage.png",
+      not_sure: "/assets/pc-references/multi-storage.png"
+    },
+    backupNeed: {
+      external_drive: "/assets/pc-references/backup-drive.png",
+      nas_later: "/assets/pc-references/backup-drive.png",
+      important: "/assets/pc-references/backup-drive.png"
+    },
+    caseSize: {
+      compact: "/assets/pc-references/airflow-case.png",
+      mid_tower: "/assets/pc-references/airflow-case.png",
+      large: "/assets/pc-references/showcase-build.png"
+    },
+    caseStyle: {
+      simple: "/assets/pc-references/airflow-case.png",
+      silent: "/assets/pc-references/silent-build.png",
+      airflow: "/assets/pc-references/airflow-case.png",
+      rgb: "/assets/pc-references/rgb-build.png",
+      white: "/assets/pc-references/white-build.png",
+      glass: "/assets/pc-references/showcase-build.png",
+      compact: "/assets/pc-references/airflow-case.png"
+    },
+    cooling: {
+      tower: "/assets/pc-references/silent-build.png",
+      silent_tower: "/assets/pc-references/silent-build.png",
+      dual_tower: "/assets/pc-references/silent-build.png",
+      aio_240: "/assets/pc-references/aio-240.png",
+      aio_280: "/assets/pc-references/aio-280.png",
+      aio_360: "/assets/pc-references/aio-360.png",
+      custom_loop_interest: "/assets/pc-references/custom-loop.png"
+    },
+    caseFans: {
+      extra_airflow: "/assets/pc-references/airflow-case.png",
+      silent_fans: "/assets/pc-references/fans-silent.png",
+      rgb_fans: "/assets/pc-references/fans-rgb.png",
+      not_sure: "/assets/pc-references/fans-silent.png"
+    },
+    psuWatt: {
+      "550w": "/assets/pc-references/psu-reference.png",
+      "650w": "/assets/pc-references/psu-reference.png",
+      "750w": "/assets/pc-references/psu-reference.png",
+      "850w": "/assets/pc-references/psu-reference.png",
+      "1000w_plus": "/assets/pc-references/psu-reference.png"
+    },
+    psu: {
+      gold: "/assets/pc-references/psu-reference.png",
+      premium: "/assets/pc-references/psu-reference.png",
+      atx_3: "/assets/pc-references/psu-reference.png",
+      standard: "/assets/pc-references/psu-reference.png"
+    },
+    modding: {
+      clean: "/assets/pc-references/cabling-reference.png",
+      rgb: "/assets/pc-references/rgb-build.png",
+      white_build: "/assets/pc-references/white-build.png",
+      blackout: "/assets/pc-references/silent-build.png",
+      showcase: "/assets/pc-references/showcase-build.png",
+      custom: "/assets/pc-references/showcase-build.png"
+    },
+    cabling: {
+      premium: "/assets/pc-references/cabling-reference.png",
+      sleeved: "/assets/pc-references/cabling-reference.png",
+      standard: "/assets/pc-references/cabling-reference.png"
+    },
+    noiseTarget: {
+      quiet: "/assets/pc-references/silent-build.png",
+      very_quiet: "/assets/pc-references/silent-build.png",
+      performance_first: "/assets/pc-references/airflow-case.png"
+    },
+    os: {
+      windows_install: "/assets/pc-references/windows-reference.png",
+      windows_license: "/assets/pc-references/windows-reference.png",
+      linux: "/assets/pc-references/windows-reference.png"
+    },
+    softwareSetup: {
+      basic: "/assets/pc-references/windows-reference.png",
+      office_browser: "/assets/pc-references/windows-reference.png",
+      gaming: "/assets/pc-references/windows-reference.png",
+      creator: "/assets/pc-references/windows-reference.png"
+    },
+    wifi: {
+      needed: "/assets/pc-references/wifi-reference.png"
+    },
+    monitorNeed: {
+      "1080p": "/assets/pc-references/monitor-1080p.png",
+      "1440p": "/assets/pc-references/monitor-1440p.png",
+      "4k": "/assets/pc-references/monitor-4k.png",
+      high_refresh: "/assets/pc-references/monitor-1440p.png"
+    },
+    peripherals: {
+      keyboard_mouse: "/assets/pc-references/monitor-1080p.png",
+      full_set: "/assets/pc-references/monitor-1440p.png",
+      headset: "/assets/pc-references/monitor-1080p.png"
+    },
+    dataMigration: {
+      yes: "/assets/pc-references/backup-drive.png"
+    },
+    delivery: {
+      personal_delivery: "/assets/pc-references/delivery-reference.png",
+      weekend_delivery: "/assets/pc-references/delivery-reference.png",
+      courier: "/assets/pc-references/delivery-reference.png"
+    }
+  };
+
+  function getPreviewImagePath(fieldKey, value, label) {
+    const fieldMap = PREVIEW_ASSET_MAP[fieldKey];
+    if (fieldMap) {
+      if (fieldMap[value]) return fieldMap[value];
+      if (fieldMap.default) return fieldMap.default;
+    }
+
+    const lower = `${value} ${label}`.toLowerCase();
+    if (lower.includes("aio 360")) return "/assets/pc-references/aio-360.png";
+    if (lower.includes("aio 280")) return "/assets/pc-references/aio-280.png";
+    if (lower.includes("aio 240")) return "/assets/pc-references/aio-240.png";
+    if (lower.includes("custom")) return "/assets/pc-references/custom-loop.png";
+    if (lower.includes("white")) return "/assets/pc-references/white-build.png";
+    if (lower.includes("rgb")) return "/assets/pc-references/rgb-build.png";
+    if (lower.includes("showcase") || lower.includes("üveg")) return "/assets/pc-references/showcase-build.png";
+    if (lower.includes("silent") || lower.includes("quiet") || lower.includes("halk")) return "/assets/pc-references/silent-build.png";
+    if (lower.includes("airflow")) return "/assets/pc-references/airflow-case.png";
+    if (lower.includes("nvidia") || lower.includes("cuda")) return "/assets/pc-references/nvidia-gpu.png";
+    if (lower.includes("radeon") || lower.includes("amd")) return "/assets/pc-references/amd-gpu.png";
+    if (lower.includes("4k")) return "/assets/pc-references/monitor-4k.png";
+    if (lower.includes("1440")) return "/assets/pc-references/monitor-1440p.png";
+    if (lower.includes("1080")) return "/assets/pc-references/monitor-1080p.png";
+    if (lower.includes("ssd") || lower.includes("nvme")) return "/assets/pc-references/nvme-ssd.png";
+    if (lower.includes("hdd")) return "/assets/pc-references/multi-storage.png";
+    if (lower.includes("wifi")) return "/assets/pc-references/wifi-reference.png";
+    if (lower.includes("windows")) return "/assets/pc-references/windows-reference.png";
+
+    return null;
+  }
+
   function buildPreviewSvg(fieldKey, value, label) {
     const theme = previewThemeForValue(fieldKey, value);
     const icon = previewIconForField(fieldKey, value);
@@ -535,7 +728,7 @@ Fontos: ez nem végleges ajánlat. A végleges konfigurációt, árat, előleget
         title: PREVIEW_FIELD_LABELS[key] || key,
         label,
         description: previewDescription(key, value, label),
-        image: buildPreviewSvg(key, value, label)
+        image: getPreviewImagePath(key, value, label) || buildPreviewSvg(key, value, label)
       });
     });
     return items;
