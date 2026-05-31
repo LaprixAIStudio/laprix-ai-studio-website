@@ -115,15 +115,63 @@
   function estimate(d) {
     let base = Math.max(220000, Number(d.budget || 0) * 0.82);
     base += ({8:0,16:15000,32:35000,64:85000,128:180000}[d.ram] || 0);
-    base += ({integrated:-35000,entry:60000,mid:130000,upper:230000,high:430000,nvidia_prefer:220000,amd_prefer:180000,recommend:120000}[d.gpu] || 0);
-    base += ({'500gb':-15000,'1tb':0,'2tb':35000,'2tb_plus':75000}[d.storage] || 0);
+    base += ({integrated:-35000,entry:60000,mid:130000,upper:230000,high:430000,workstation:500000,nvidia_prefer:220000,amd_prefer:180000,recommend:120000}[d.gpu] || 0);
+    base += ({'500gb':-15000,'1tb':0,'2tb':35000,'4tb':85000,'2tb_plus':75000}[d.storage] || 0);
     if ((d.platform || "").includes("ddr5")) base += 35000;
+
+    base += ({none:0,'1tb_ssd':25000,'2tb_ssd':45000,'4tb_hdd':35000,'8tb_hdd':70000,not_sure:20000}[d.secondaryStorage] || 0);
+    base += ({none:0,external_drive:35000,nas_later:0,important:20000}[d.backupNeed] || 0);
+
+    if (d.gpuTarget === "1440p_high") base += 70000;
+    if (d.gpuTarget === "4k") base += 180000;
+    if (d.gpuTarget === "ai_vram") base += 220000;
+    if (d.gpuTarget === "cuda") base += 120000;
+    if (d.vram === "16gb") base += 90000;
+    if (d.vram === "24gb_plus") base += 250000;
+    if (d.fpsTarget === "high_refresh") base += 50000;
+    if (d.fpsTarget === "competitive") base += 120000;
+
     if (d.cooling === "silent_tower") base += 25000;
-    if (d.cooling === "aio") base += 50000;
+    if (d.cooling === "dual_tower") base += 35000;
+    if (d.cooling === "aio_240") base += 50000;
+    if (d.cooling === "aio_280") base += 65000;
+    if (d.cooling === "aio_360") base += 85000;
+    if (d.cooling === "custom_loop_interest") base += 180000;
+
+    if (d.caseFans === "extra_airflow") base += 18000;
+    if (d.caseFans === "silent_fans") base += 35000;
+    if (d.caseFans === "rgb_fans") base += 30000;
+
+    if (d.caseSize === "large") base += 25000;
+    if (d.caseStyle === "white") base += 25000;
+    if (d.caseStyle === "glass") base += 20000;
+    if (d.modding === "rgb") base += 25000;
+    if (d.modding === "white_build") base += 35000;
+    if (d.modding === "showcase") base += 45000;
+    if (d.modding === "custom") base += 50000;
+    if (d.cabling === "premium") base += 15000;
+    if (d.cabling === "sleeved") base += 30000;
+    if (d.noiseTarget === "quiet") base += 25000;
+    if (d.noiseTarget === "very_quiet") base += 55000;
+
     if (d.psu === "premium") base += 30000;
+    if (d.psu === "atx_3") base += 25000;
+    if (d.psuWatt === "850w") base += 25000;
+    if (d.psuWatt === "1000w_plus") base += 55000;
+
     if (d.os === "windows_install") base += 15000;
     if (d.os === "windows_license") base += 55000;
+    if (d.softwareSetup === "office_browser") base += 10000;
+    if (d.softwareSetup === "gaming") base += 12000;
+    if (d.softwareSetup === "creator") base += 18000;
     if (d.wifi === "needed") base += 15000;
+    if (d.monitorNeed === "1080p") base += 45000;
+    if (d.monitorNeed === "1440p") base += 90000;
+    if (d.monitorNeed === "4k") base += 130000;
+    if (d.monitorNeed === "high_refresh") base += 110000;
+    if (d.peripherals === "keyboard_mouse") base += 20000;
+    if (d.peripherals === "full_set") base += 70000;
+    if (d.peripherals === "headset") base += 25000;
     if (d.delivery === "personal_delivery") base += 15000;
     if (d.delivery === "weekend_delivery") base += 25000;
     if (d.dataMigration === "yes") base += 15000;
@@ -158,7 +206,10 @@
         <p><strong>Alaplap:</strong> ${d.motherboard || "kézi ajánlás"}</p>
         <p><strong>RAM:</strong> ${d.ram || "-"} GB ${d.ramType || ""}</p>
         <p><strong>GPU irány:</strong> ${selected("#gpu")}</p>
+        <p><strong>GPU cél:</strong> ${selected("#gpuTarget") || "-"}</p>
         <p><strong>Tárhely:</strong> ${selected("#storage")}</p>
+        <p><strong>Hűtés:</strong> ${selected("#cooling")}</p>
+        <p><strong>Modding:</strong> ${selected("#modding") || "-"}</p>
         <p><strong>Átadás:</strong> ${selected("#delivery")}</p>
       </div>
       <div class="pc-ai-note">${rec ? rec.note : "Válassz felhasználást, hogy pontosabb előzetes irányt kapj."}</div>
@@ -190,14 +241,28 @@ Konfiguráció:
 - Alaplap: ${selected("#motherboard")}
 - RAM: ${d.ram} GB ${d.ramType}
 - Videókártya irány: ${selected("#gpu")}
-- Tárhely: ${selected("#storage")}
-- Gépház: ${selected("#caseStyle")}
+- GPU teljesítmény cél: ${selected("#gpuTarget")}
+- VRAM igény: ${selected("#vram")}
+- Monitor célfelbontás: ${selected("#targetResolution")}
+- FPS cél: ${selected("#fpsTarget")}
+- Fő tárhely: ${selected("#storage")}
+- Második meghajtó: ${selected("#secondaryStorage")}
+- Backup igény: ${selected("#backupNeed")}
+- Gépház méret: ${selected("#caseSize")}
+- Gépház stílus: ${selected("#caseStyle")}
 - Hűtés: ${selected("#cooling")}
+- Házventilátorok: ${selected("#caseFans")}
+- Tápegység teljesítmény: ${selected("#psuWatt")}
 - Tápegység: ${selected("#psu")}
+- Modding: ${selected("#modding")}
+- Kábelezés: ${selected("#cabling")}
+- Zajszint cél: ${selected("#noiseTarget")}
 
 Rendszer és kiegészítők:
 - OS: ${selected("#os")}
+- Alapprogramok: ${selected("#softwareSetup")}
 - Wi-Fi / Bluetooth: ${selected("#wifi")}
+- Monitor: ${selected("#monitorNeed")}
 - Periféria: ${selected("#peripherals")}
 - Adatmentés: ${selected("#dataMigration")}
 

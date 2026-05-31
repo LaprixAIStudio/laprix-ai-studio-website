@@ -131,7 +131,7 @@
         <div class="section-heading">
           <p class="eyebrow">PC konfigurátor</p>
           <h2>Állítsd össze az igényt, mi pedig pontosítjuk.</h2>
-          <p>A konfigurátor nem webshopkosár, hanem ajánlatkérő. Az itt látott becslés tájékoztató jellegű.</p>
+          <p>A konfigurátor nem webshopkosár, hanem részletes ajánlatkérő. A cél, hogy a lehető legtöbb igényt előre összegyűjtsük: teljesítmény, hűtés, modding, tárhely, Windows, kiszállítás és beüzemelés. Az itt látott becslés tájékoztató jellegű.</p>
         </div>
 
         <form class="pc-configurator" id="pcConfiguratorForm">
@@ -205,30 +205,160 @@
             </section>
 
             <section class="pc-form-panel">
-              <h3>Videókártya, tárhely, ház</h3>
+              <h3>Videókártya és teljesítmény</h3>
               <label>Videókártya irány
                 <select name="gpu" id="gpu">
                   <option value="integrated">Integrált / nem kell külön VGA</option>
-                  <option value="entry">Belépő gamer</option>
+                  <option value="entry">Belépő gamer / e-sport</option>
                   <option value="mid">Középkategóriás gamer</option>
                   <option value="upper">Erős gamer / 1440p</option>
                   <option value="high">Felsőkategória / 4K / AI</option>
+                  <option value="workstation">Munkaállomás / VRAM fontos</option>
                   <option value="nvidia_prefer">NVIDIA előnyben</option>
                   <option value="amd_prefer">AMD Radeon előnyben</option>
                   <option value="recommend" selected>Nem tudom, ajánljatok</option>
                 </select>
               </label>
-              <label>SSD / tárhely
-                <select name="storage" id="storage"><option value="500gb">500 GB NVMe SSD</option><option value="1tb" selected>1 TB NVMe SSD</option><option value="2tb">2 TB NVMe SSD</option><option value="2tb_plus">2 TB+ / több meghajtó</option></select>
+              <label>GPU teljesítmény cél
+                <select name="gpuTarget" id="gpuTarget">
+                  <option value="none">Nem fontos / nincs külön igény</option>
+                  <option value="1080p_medium">1080p közepes-magas beállítás</option>
+                  <option value="1080p_high">1080p magas FPS</option>
+                  <option value="1440p_high">1440p magas beállítás</option>
+                  <option value="4k">4K / nagyon erős GPU</option>
+                  <option value="ai_vram">AI / sok VRAM fontos</option>
+                  <option value="cuda">CUDA / NVIDIA irány fontos</option>
+                </select>
+              </label>
+              <label>GPU memória / VRAM igény
+                <select name="vram" id="vram">
+                  <option value="not_sure" selected>Nem tudom</option>
+                  <option value="8gb">8 GB körül</option>
+                  <option value="12gb">12 GB körül</option>
+                  <option value="16gb">16 GB körül</option>
+                  <option value="24gb_plus">24 GB vagy több</option>
+                </select>
+              </label>
+              <label>Monitor célfelbontás
+                <select name="targetResolution" id="targetResolution">
+                  <option value="not_sure">Nem tudom</option>
+                  <option value="1080p">Full HD / 1080p</option>
+                  <option value="1440p">QHD / 1440p</option>
+                  <option value="4k">4K</option>
+                  <option value="multi_monitor">Több monitor</option>
+                </select>
+              </label>
+              <label>FPS / képfrissítés cél
+                <select name="fpsTarget" id="fpsTarget">
+                  <option value="normal">Normál 60 FPS körül</option>
+                  <option value="high_refresh">144 Hz körül</option>
+                  <option value="competitive">240 Hz / kompetitív játék</option>
+                  <option value="not_sure" selected>Nem tudom</option>
+                </select>
+              </label>
+            </section>
+
+            <section class="pc-form-panel">
+              <h3>Tárhely és adattárolás</h3>
+              <label>Fő SSD / rendszermeghajtó
+                <select name="storage" id="storage"><option value="500gb">500 GB NVMe SSD</option><option value="1tb" selected>1 TB NVMe SSD</option><option value="2tb">2 TB NVMe SSD</option><option value="4tb">4 TB NVMe SSD</option><option value="2tb_plus">2 TB+ / több meghajtó</option></select>
+              </label>
+              <label>Második meghajtó
+                <select name="secondaryStorage" id="secondaryStorage">
+                  <option value="none" selected>Nem kell</option>
+                  <option value="1tb_ssd">+1 TB SSD</option>
+                  <option value="2tb_ssd">+2 TB SSD</option>
+                  <option value="4tb_hdd">+4 TB HDD adattárolásra</option>
+                  <option value="8tb_hdd">+8 TB HDD adattárolásra</option>
+                  <option value="not_sure">Nem tudom, ajánljatok</option>
+                </select>
+              </label>
+              <label>Adatbiztonság / backup
+                <select name="backupNeed" id="backupNeed">
+                  <option value="none" selected>Nem kérek külön backup megoldást</option>
+                  <option value="external_drive">Külső mentőmeghajtó érdekel</option>
+                  <option value="nas_later">NAS / hálózati mentés később érdekelhet</option>
+                  <option value="important">Fontos adatok lesznek rajta, kérnék javaslatot</option>
+                </select>
+              </label>
+            </section>
+
+            <section class="pc-form-panel">
+              <h3>Ház, hűtés és táp</h3>
+              <label>Gépház méret
+                <select name="caseSize" id="caseSize">
+                  <option value="mid_tower" selected>Mid tower / normál méret</option>
+                  <option value="compact">Kompakt / kisebb méret</option>
+                  <option value="large">Nagyobb ház / jobb bővíthetőség</option>
+                  <option value="not_sure">Nem tudom</option>
+                </select>
               </label>
               <label>Gépház stílus
-                <select name="caseStyle" id="caseStyle"><option value="simple">Egyszerű, letisztult</option><option value="silent">Csendes / visszafogott</option><option value="airflow" selected>Jó szellőzés</option><option value="rgb">RGB / látványos</option><option value="compact">Kompakt / kisebb méret</option></select>
+                <select name="caseStyle" id="caseStyle"><option value="simple">Egyszerű, letisztult</option><option value="silent">Csendes / visszafogott</option><option value="airflow" selected>Jó szellőzés</option><option value="rgb">RGB / látványos</option><option value="white">Fehér build</option><option value="glass">Üveg oldallap / látványos belső</option><option value="compact">Kompakt / kisebb méret</option></select>
               </label>
-              <label>Hűtés
-                <select name="cooling" id="cooling"><option value="stock">Gyári / alap hűtés, ha elég</option><option value="tower" selected>Normál toronyhűtő</option><option value="silent_tower">Csendes prémium toronyhűtő</option><option value="aio">Vízhűtés / AIO érdekel</option></select>
+              <label>Processzorhűtés
+                <select name="cooling" id="cooling">
+                  <option value="stock">Gyári / alap hűtés, ha elég</option>
+                  <option value="tower" selected>Normál toronyhűtő</option>
+                  <option value="silent_tower">Csendes prémium toronyhűtő</option>
+                  <option value="dual_tower">Nagy két tornyos léghűtő</option>
+                  <option value="aio_240">AIO vízhűtés 240 mm</option>
+                  <option value="aio_280">AIO vízhűtés 280 mm</option>
+                  <option value="aio_360">AIO vízhűtés 360 mm</option>
+                  <option value="custom_loop_interest">Custom vízhűtés érdekel, egyeztessünk</option>
+                </select>
+              </label>
+              <label>Házventilátorok
+                <select name="caseFans" id="caseFans">
+                  <option value="standard" selected>Standard, ami szükséges</option>
+                  <option value="extra_airflow">Extra airflow ventilátorok</option>
+                  <option value="silent_fans">Csendes prémium ventilátorok</option>
+                  <option value="rgb_fans">RGB ventilátorok</option>
+                  <option value="not_sure">Nem tudom, ajánljatok</option>
+                </select>
+              </label>
+              <label>Tápegység teljesítmény
+                <select name="psuWatt" id="psuWatt">
+                  <option value="auto" selected>Automatikus ajánlás</option>
+                  <option value="550w">550 W körül</option>
+                  <option value="650w">650 W körül</option>
+                  <option value="750w">750 W körül</option>
+                  <option value="850w">850 W körül</option>
+                  <option value="1000w_plus">1000 W vagy több</option>
+                </select>
               </label>
               <label>Tápegység minőség
-                <select name="psu" id="psu"><option value="standard">Megbízható standard</option><option value="gold" selected>80+ Gold ajánlott</option><option value="premium">Prémium / későbbi bővítéshez</option></select>
+                <select name="psu" id="psu"><option value="standard">Megbízható standard</option><option value="gold" selected>80+ Gold ajánlott</option><option value="premium">Prémium / későbbi bővítéshez</option><option value="atx_3">ATX 3.x / modern VGA-hoz ajánlott</option></select>
+              </label>
+            </section>
+
+            <section class="pc-form-panel">
+              <h3>Modding és megjelenés</h3>
+              <label>Modding irány
+                <select name="modding" id="modding">
+                  <option value="none" selected>Nem kérek moddingot</option>
+                  <option value="clean">Letisztult, szép kábelrendezés</option>
+                  <option value="rgb">RGB világítás</option>
+                  <option value="white_build">Fehér build</option>
+                  <option value="blackout">Fekete, visszafogott build</option>
+                  <option value="showcase">Látványos üveg oldallapos build</option>
+                  <option value="custom">Egyedi elképzelés, leírom megjegyzésben</option>
+                </select>
+              </label>
+              <label>Kábelezés
+                <select name="cabling" id="cabling">
+                  <option value="standard" selected>Szép alap kábelrendezés</option>
+                  <option value="premium">Prémium kábelrendezés</option>
+                  <option value="sleeved">Kábelharisnya / látványos kábelek érdekelnek</option>
+                </select>
+              </label>
+              <label>Zajszint
+                <select name="noiseTarget" id="noiseTarget">
+                  <option value="normal" selected>Normál</option>
+                  <option value="quiet">Legyen halk</option>
+                  <option value="very_quiet">Nagyon halk build a cél</option>
+                  <option value="performance_first">Teljesítmény fontosabb, mint a zaj</option>
+                </select>
               </label>
             </section>
 
@@ -237,11 +367,29 @@
               <label>Windows / operációs rendszer
                 <select name="os" id="os"><option value="none">Nem kérek</option><option value="windows_install" selected>Windows telepítés / előkészítés</option><option value="windows_license">Windows licenc + telepítés is kell</option><option value="linux">Linux érdekel</option></select>
               </label>
+              <label>Alapprogramok
+                <select name="softwareSetup" id="softwareSetup">
+                  <option value="basic" selected>Alap driverek és frissítések</option>
+                  <option value="office_browser">Böngésző, Office jellegű alapok</option>
+                  <option value="gaming">Gaming launcherek / alap játékos setup</option>
+                  <option value="creator">Tartalomgyártó alap programok egyeztetéssel</option>
+                  <option value="none">Nem kérek külön szoftveres beállítást</option>
+                </select>
+              </label>
               <label>Wi-Fi / Bluetooth
                 <select name="wifi" id="wifi"><option value="not_needed">Nem kell</option><option value="needed" selected>Kell Wi-Fi / Bluetooth</option><option value="not_sure">Nem tudom</option></select>
               </label>
-              <label>Monitor / periféria
-                <select name="peripherals" id="peripherals"><option value="pc_only" selected>Csak a gépház</option><option value="monitor">Monitor is kell</option><option value="full_set">Monitor + billentyűzet + egér is kell</option><option value="not_sure">Nem tudom</option></select>
+              <label>Monitor
+                <select name="monitorNeed" id="monitorNeed">
+                  <option value="none" selected>Nem kell monitor</option>
+                  <option value="1080p">Full HD monitor érdekel</option>
+                  <option value="1440p">1440p monitor érdekel</option>
+                  <option value="4k">4K monitor érdekel</option>
+                  <option value="high_refresh">Magas Hz gamer monitor érdekel</option>
+                </select>
+              </label>
+              <label>Perifériák
+                <select name="peripherals" id="peripherals"><option value="pc_only" selected>Csak a gépház</option><option value="keyboard_mouse">Billentyűzet + egér is kell</option><option value="full_set">Monitor + billentyűzet + egér is kell</option><option value="headset">Headset / hang is érdekel</option><option value="not_sure">Nem tudom</option></select>
               </label>
               <label>Régi gépről adatmentés
                 <select name="dataMigration" id="dataMigration"><option value="no" selected>Nem kell</option><option value="yes">Igen, érdekel</option><option value="not_sure">Nem tudom</option></select>

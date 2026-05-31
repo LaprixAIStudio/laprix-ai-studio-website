@@ -1323,3 +1323,42 @@ h3 {
   .pc-form-grid { grid-template-columns: 1fr; }
 }
 
+
+/* Laprix AI Studio V1.41 – Pro PC configurator polish */
+.pc-form-panel h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pc-form-panel h3::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 0 18px rgba(56, 217, 255, 0.35);
+}
+
+.pc-form-panel select:focus,
+.pc-form-panel input:focus,
+.pc-form-panel textarea:focus {
+  outline: 2px solid rgba(56, 217, 255, 0.35);
+  border-color: rgba(56, 217, 255, 0.55);
+}
+
+.pc-summary-card {
+  border-color: rgba(56, 217, 255, 0.22);
+}
+
+.pc-summary-card .button {
+  width: 100%;
+  justify-content: center;
+}
+
+.pc-configurator-section .section-heading p {
+  max-width: 920px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
