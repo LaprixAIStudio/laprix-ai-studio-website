@@ -1291,3 +1291,35 @@ h3 {
   word-break: normal;
 }
 
+/* Laprix AI Studio V1.40 – PC configurator */
+.pc-hero-section { padding-top: 92px; }
+.pc-hero-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr); gap: 28px; align-items: center; }
+.pc-hero-grid h1 { max-width: 960px; font-size: clamp(2.5rem, 6vw, 5.8rem); line-height: .96; letter-spacing: -.07em; margin: 0 0 20px; }
+.pc-hero-card, .pc-info-card, .pc-form-panel, .pc-summary-card { border: 1px solid rgba(148,163,184,.16); background: rgba(15,23,42,.74); border-radius: 28px; box-shadow: var(--shadow-soft); }
+.pc-hero-card, .pc-info-card { padding: 26px; }
+.pc-hero-card h2, .pc-info-card h2, .pc-form-panel h3, .pc-summary-card h3 { margin-top: 0; }
+.pc-hero-card li, .pc-info-card li, .pc-info-card p, .pc-hero-card p { color: var(--muted); line-height: 1.62; }
+.pc-info-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px; }
+.pc-configurator { display: grid; grid-template-columns: minmax(0,1fr) 360px; gap: 20px; align-items: start; }
+.pc-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+.pc-form-panel { padding: 22px; display: grid; gap: 14px; }
+.pc-form-panel label { display: grid; gap: 7px; color: var(--muted); font-weight: 850; font-size: .9rem; }
+.pc-form-panel input, .pc-form-panel select, .pc-form-panel textarea { width: 100%; min-height: 44px; border-radius: 14px; border: 1px solid rgba(148,163,184,.18); background: rgba(8,15,30,.78); color: var(--text); padding: 10px 12px; font: inherit; }
+.pc-form-panel textarea { resize: vertical; min-height: 108px; }
+.pc-summary-card { position: sticky; top: 108px; padding: 22px; }
+.pc-summary-list p { margin: 0 0 9px; color: var(--muted); line-height: 1.45; }
+.pc-summary-list strong { color: var(--text); }
+.pc-ai-note { margin-top: 14px; padding: 14px; border-radius: 18px; border: 1px solid rgba(56,189,248,.20); background: rgba(56,189,248,.08); color: var(--muted); line-height: 1.5; }
+.pc-estimate { margin: 16px 0; padding: 16px; border-radius: 20px; background: linear-gradient(135deg, rgba(56,217,255,.13), rgba(157,124,255,.12)); border: 1px solid rgba(56,217,255,.22); line-height: 1.5; }
+.pc-estimate small, .pc-disclaimer { color: var(--muted); line-height: 1.5; }
+.pc-form-status { margin-top: 12px; color: var(--muted); line-height: 1.45; }
+.pc-form-status.success { color: #c6ffe8; }
+.pc-form-status.error { color: #ffd6dd; }
+@media (max-width: 1100px) {
+  .pc-hero-grid, .pc-configurator, .pc-info-grid { grid-template-columns: 1fr; }
+  .pc-summary-card { position: static; }
+}
+@media (max-width: 820px) {
+  .pc-form-grid { grid-template-columns: 1fr; }
+}
+
