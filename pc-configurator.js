@@ -215,6 +215,7 @@
       <div class="pc-ai-note">${rec ? rec.note : "Válassz felhasználást, hogy pontosabb előzetes irányt kapj."}</div>
     `;
     qs("#pcEstimate").innerHTML = `<strong>Becsült irányár:</strong><br>${ft(e.low)} – ${ft(e.high)}<br><small>${depositText(e)}</small>`;
+    renderPreviewGallery(d);
   }
 
   function message(d) {
@@ -329,6 +330,260 @@ Fontos: ez nem végleges ajánlat. A végleges konfigurációt, árat, előleget
       status.textContent = "Nem sikerült elküldeni. Kérlek próbáld újra, vagy írj e-mailt: hello@laprixaistudio.hu";
       status.className = "pc-form-status error";
     }
+  }
+
+
+  const PREVIEW_FIELD_LABELS = {
+    cpuBrand: "CPU gyártó",
+    platform: "Platform",
+    cpu: "Processzor",
+    motherboard: "Alaplap",
+    ram: "RAM",
+    gpu: "Videókártya irány",
+    gpuTarget: "GPU cél",
+    vram: "VRAM",
+    targetResolution: "Célfelbontás",
+    fpsTarget: "FPS / Hz cél",
+    storage: "Fő SSD",
+    secondaryStorage: "Második meghajtó",
+    backupNeed: "Backup",
+    caseSize: "Gépház méret",
+    caseStyle: "Gépház stílus",
+    cooling: "Hűtés",
+    caseFans: "Házventilátorok",
+    psuWatt: "Tápegység teljesítmény",
+    psu: "Tápegység minőség",
+    modding: "Modding",
+    cabling: "Kábelezés",
+    noiseTarget: "Zajszint",
+    os: "Operációs rendszer",
+    softwareSetup: "Szoftveres előkészítés",
+    wifi: "Wi‑Fi / Bluetooth",
+    monitorNeed: "Monitor",
+    peripherals: "Perifériák",
+    dataMigration: "Adatmentés",
+    delivery: "Átadás módja"
+  };
+
+  const PREVIEW_ORDER = [
+    "cpuBrand","platform","cpu","motherboard","ram","gpu","gpuTarget","vram","targetResolution","fpsTarget",
+    "storage","secondaryStorage","backupNeed","caseSize","caseStyle","cooling","caseFans","psuWatt","psu",
+    "modding","cabling","noiseTarget","os","softwareSetup","wifi","monitorNeed","peripherals","dataMigration","delivery"
+  ];
+
+  function shouldPreviewField(key, value) {
+    if (!value) return false;
+    const skipValues = new Set(["", "none", "not_sure", "normal", "standard", "auto", "pickup", "no", "not_needed"]);
+    if (key === "cpuBrand" && value === "recommend") return false;
+    if (key === "platform" && value === "recommend") return false;
+    return !skipValues.has(value);
+  }
+
+  function previewThemeForValue(fieldKey, value) {
+    const combined = `${fieldKey}:${value}`.toLowerCase();
+
+    if (combined.includes("white")) return { a: "#eef6ff", b: "#cfdfff", c: "#ffffff", fg: "#0b1220", tag: "Fehér build" };
+    if (combined.includes("rgb")) return { a: "#33115e", b: "#0ea5e9", c: "#ff4fd8", fg: "#ffffff", tag: "RGB / látvány" };
+    if (combined.includes("showcase") || combined.includes("glass")) return { a: "#09111f", b: "#1d4ed8", c: "#93c5fd", fg: "#ffffff", tag: "Showcase" };
+    if (combined.includes("silent") || combined.includes("quiet")) return { a: "#102235", b: "#1f6b77", c: "#cfeff5", fg: "#ffffff", tag: "Halk build" };
+    if (combined.includes("airflow")) return { a: "#0d1728", b: "#0ea5e9", c: "#7dd3fc", fg: "#ffffff", tag: "Airflow" };
+    if (combined.includes("aio_360")) return { a: "#0f172a", b: "#1d4ed8", c: "#67e8f9", fg: "#ffffff", tag: "AIO 360" };
+    if (combined.includes("aio_280")) return { a: "#111827", b: "#2563eb", c: "#93c5fd", fg: "#ffffff", tag: "AIO 280" };
+    if (combined.includes("aio_240")) return { a: "#111827", b: "#0ea5e9", c: "#bae6fd", fg: "#ffffff", tag: "AIO 240" };
+    if (combined.includes("custom_loop")) return { a: "#1f1235", b: "#2563eb", c: "#22d3ee", fg: "#ffffff", tag: "Custom vízhűtés" };
+    if (combined.includes("tower")) return { a: "#142033", b: "#475569", c: "#dbeafe", fg: "#ffffff", tag: "Léghűtés" };
+    if (combined.includes("amd")) return { a: "#162013", b: "#0f9d58", c: "#bbf7d0", fg: "#ffffff", tag: "AMD" };
+    if (combined.includes("intel")) return { a: "#0d1b3a", b: "#2563eb", c: "#bfdbfe", fg: "#ffffff", tag: "Intel" };
+    if (combined.includes("ddr5")) return { a: "#1f1538", b: "#8b5cf6", c: "#ddd6fe", fg: "#ffffff", tag: "DDR5" };
+    if (combined.includes("ddr4")) return { a: "#1e293b", b: "#64748b", c: "#cbd5e1", fg: "#ffffff", tag: "DDR4" };
+    if (combined.includes("nvidia") || combined.includes("cuda")) return { a: "#0d2011", b: "#15803d", c: "#86efac", fg: "#ffffff", tag: "NVIDIA" };
+    if (combined.includes("radeon") || combined.includes("amd_prefer")) return { a: "#2b0f0f", b: "#dc2626", c: "#fecaca", fg: "#ffffff", tag: "AMD Radeon" };
+    if (combined.includes("4k")) return { a: "#1d1030", b: "#7c3aed", c: "#e9d5ff", fg: "#ffffff", tag: "4K" };
+    if (combined.includes("1440")) return { a: "#12243a", b: "#2563eb", c: "#dbeafe", fg: "#ffffff", tag: "1440p" };
+    if (combined.includes("1080")) return { a: "#12243a", b: "#0284c7", c: "#bae6fd", fg: "#ffffff", tag: "1080p" };
+    if (combined.includes("ssd") || combined.includes("nvme")) return { a: "#131a22", b: "#334155", c: "#f8fafc", fg: "#ffffff", tag: "SSD / NVMe" };
+    if (combined.includes("hdd")) return { a: "#1d1b1a", b: "#92400e", c: "#fde68a", fg: "#ffffff", tag: "HDD" };
+    if (combined.includes("backup") || combined.includes("important")) return { a: "#162032", b: "#0f766e", c: "#99f6e4", fg: "#ffffff", tag: "Backup" };
+    if (combined.includes("monitor")) return { a: "#0f172a", b: "#1e40af", c: "#a5b4fc", fg: "#ffffff", tag: "Monitor" };
+    if (combined.includes("windows")) return { a: "#0f172a", b: "#2563eb", c: "#dbeafe", fg: "#ffffff", tag: "Windows" };
+    if (combined.includes("delivery") || combined.includes("courier") || combined.includes("weekend")) return { a: "#1a222c", b: "#0f766e", c: "#ccfbf1", fg: "#ffffff", tag: "Átadás" };
+    if (combined.includes("modding") || combined.includes("sleeved")) return { a: "#25112a", b: "#c026d3", c: "#f5d0fe", fg: "#ffffff", tag: "Modding" };
+
+    return { a: "#0f172a", b: "#334155", c: "#cbd5e1", fg: "#ffffff", tag: "Referencia" };
+  }
+
+  function previewIconForField(fieldKey, value) {
+    const combined = `${fieldKey}:${value}`.toLowerCase();
+    if (fieldKey === "cpuBrand" || fieldKey === "cpu") return "CPU";
+    if (fieldKey === "motherboard" || fieldKey === "platform") return "MB";
+    if (fieldKey === "ram") return "RAM";
+    if (fieldKey === "gpu" || fieldKey === "gpuTarget" || fieldKey === "vram") return "GPU";
+    if (fieldKey === "storage" || fieldKey === "secondaryStorage") return "SSD";
+    if (fieldKey === "backupNeed") return "BKP";
+    if (fieldKey === "caseStyle" || fieldKey === "caseSize") return "CASE";
+    if (fieldKey === "cooling") return combined.includes("aio") || combined.includes("loop") ? "AIO" : "AIR";
+    if (fieldKey === "caseFans") return "FAN";
+    if (fieldKey === "psu" || fieldKey === "psuWatt") return "PSU";
+    if (fieldKey === "modding" || fieldKey === "cabling") return "MOD";
+    if (fieldKey === "noiseTarget") return "SIL";
+    if (fieldKey === "os" || fieldKey === "softwareSetup") return "OS";
+    if (fieldKey === "monitorNeed" || fieldKey === "targetResolution" || fieldKey === "fpsTarget") return "MON";
+    if (fieldKey === "peripherals") return "IO";
+    if (fieldKey === "wifi") return "NET";
+    if (fieldKey === "delivery") return "DEL";
+    return "PC";
+  }
+
+  function previewDescription(fieldKey, value, label) {
+    const combined = `${fieldKey}:${value}`.toLowerCase();
+    const base = {
+      cpuBrand: "Processzor-platform irány a build alapjához.",
+      platform: "Foglalat és memória-generáció, amely meghatározza a bővíthetőséget.",
+      cpu: "A várható teljesítmény egyik legfontosabb eleme.",
+      motherboard: "Kategória és felszereltségi szint irányadó választás.",
+      ram: "A rendszer munkamemóriája a felhasználási cél szerint.",
+      gpu: "A grafikus teljesítmény fő iránya.",
+      gpuTarget: "Célzott felbontás vagy teljesítmény szint.",
+      vram: "Videómemória-igény a használathoz.",
+      targetResolution: "A monitorozási / játék felbontás célja.",
+      fpsTarget: "A kívánt játékbeli folyamatosság / képfrissítés célja.",
+      storage: "Fő rendszer- és programmeghajtó.",
+      secondaryStorage: "Kiegészítő tárhely játékokhoz, projektekhez vagy adatokhoz.",
+      backupNeed: "Adatbiztonsági igény vagy későbbi mentési irány.",
+      caseSize: "A ház mérete és bővíthetőségi jellege.",
+      caseStyle: "A build külső megjelenésének iránya.",
+      cooling: "A processzor hőelvezetési megoldása.",
+      caseFans: "A ház légáramlásának és zajszintjének része.",
+      psuWatt: "A szükséges tápegység teljesítménytartaléka.",
+      psu: "A tápegység minőségi szintje és szabvány iránya.",
+      modding: "A build látvány- és stílusirányának referencia képe.",
+      cabling: "A belső kábelezés minőségi / látvány iránya.",
+      noiseTarget: "Zajszint és hűtés egyensúlya.",
+      os: "Rendszertelepítési igény.",
+      softwareSetup: "Szoftveres előkészítés iránya.",
+      wifi: "Vezeték nélküli kapcsolódási igény.",
+      monitorNeed: "A monitorigény vizuális iránya.",
+      peripherals: "Kiegészítő perifériák iránya.",
+      dataMigration: "Adatmásolás / költöztetés iránya.",
+      delivery: "Átadási és szállítási preferencia."
+    };
+    return base[fieldKey] || `Kiválasztott opció: ${label}`;
+  }
+
+  function buildPreviewSvg(fieldKey, value, label) {
+    const theme = previewThemeForValue(fieldKey, value);
+    const icon = previewIconForField(fieldKey, value);
+    const safeLabel = String(label).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520">
+        <defs>
+          <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stop-color="${theme.a}" />
+            <stop offset="100%" stop-color="${theme.b}" />
+          </linearGradient>
+          <radialGradient id="orb" cx="50%" cy="40%" r="55%">
+            <stop offset="0%" stop-color="${theme.c}" stop-opacity="0.95" />
+            <stop offset="100%" stop-color="${theme.c}" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <rect width="800" height="520" fill="url(#bg)" rx="34" />
+        <circle cx="615" cy="120" r="150" fill="url(#orb)" />
+        <rect x="40" y="42" width="144" height="52" rx="14" fill="rgba(255,255,255,0.15)" />
+        <text x="112" y="76" text-anchor="middle" font-size="26" font-family="Arial, sans-serif" font-weight="700" fill="${theme.fg}">${icon}</text>
+
+        <rect x="70" y="150" width="280" height="230" rx="28" fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.25)" />
+        <rect x="96" y="176" width="228" height="178" rx="22" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.22)" />
+        <circle cx="286" cy="266" r="26" fill="rgba(255,255,255,0.28)" />
+        <circle cx="286" cy="266" r="12" fill="rgba(255,255,255,0.70)" />
+        <rect x="120" y="208" width="136" height="20" rx="10" fill="rgba(255,255,255,0.30)" />
+        <rect x="120" y="242" width="102" height="14" rx="7" fill="rgba(255,255,255,0.22)" />
+        <rect x="120" y="268" width="120" height="14" rx="7" fill="rgba(255,255,255,0.22)" />
+        <rect x="120" y="294" width="90" height="14" rx="7" fill="rgba(255,255,255,0.22)" />
+
+        <text x="398" y="188" font-size="26" font-family="Arial, sans-serif" font-weight="700" fill="${theme.fg}" opacity="0.92">${safeLabel.length > 30 ? safeLabel.slice(0, 30) + "…" : safeLabel}</text>
+        <text x="398" y="226" font-size="16" font-family="Arial, sans-serif" fill="${theme.fg}" opacity="0.72">${theme.tag}</text>
+
+        <rect x="398" y="258" width="320" height="16" rx="8" fill="rgba(255,255,255,0.24)" />
+        <rect x="398" y="290" width="280" height="16" rx="8" fill="rgba(255,255,255,0.18)" />
+        <rect x="398" y="322" width="240" height="16" rx="8" fill="rgba(255,255,255,0.18)" />
+
+        <rect x="398" y="372" width="122" height="36" rx="18" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.22)" />
+        <text x="459" y="396" text-anchor="middle" font-size="16" font-family="Arial, sans-serif" fill="${theme.fg}" opacity="0.92">Referencia</text>
+      </svg>`;
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  }
+
+  function collectPreviewItems(formData) {
+    const items = [];
+    PREVIEW_ORDER.forEach((key) => {
+      const value = formData[key];
+      if (!shouldPreviewField(key, value)) return;
+
+      let label = value;
+      const el = document.getElementById(key);
+      if (el && el.selectedOptions && el.selectedOptions[0]) {
+        label = el.selectedOptions[0].textContent;
+      } else if (key === "ram") {
+        const ramType = formData.ramType ? ` ${formData.ramType}` : "";
+        label = `${value} GB${ramType}`;
+      }
+
+      items.push({
+        key,
+        value,
+        title: PREVIEW_FIELD_LABELS[key] || key,
+        label,
+        description: previewDescription(key, value, label),
+        image: buildPreviewSvg(key, value, label)
+      });
+    });
+    return items;
+  }
+
+  function renderPreviewGallery(formData) {
+    const highlight = qs("#pcPreviewHighlight");
+    const grid = qs("#pcPreviewGrid");
+    if (!highlight || !grid) return;
+
+    const items = collectPreviewItems(formData);
+    grid.innerHTML = "";
+
+    if (!items.length) {
+      highlight.innerHTML = `<div class="pc-preview-empty">Válassz ki néhány fontosabb opciót, és itt megjelennek a hozzájuk tartozó referencia képek.</div>`;
+      return;
+    }
+
+    const hero = items[0];
+    highlight.innerHTML = `
+      <article class="pc-preview-card pc-preview-card-large">
+        <div class="pc-preview-image-wrap">
+          <img class="pc-preview-image" src="${hero.image}" alt="${hero.title}: ${hero.label}" loading="lazy" />
+        </div>
+        <div class="pc-preview-content">
+          <span class="pc-preview-kicker">Kiemelt választás</span>
+          <h4>${hero.title}</h4>
+          <p class="pc-preview-choice">${hero.label}</p>
+          <p>${hero.description}</p>
+        </div>
+      </article>
+    `;
+
+    items.forEach((item) => {
+      const card = document.createElement("article");
+      card.className = "pc-preview-card";
+      card.innerHTML = `
+        <div class="pc-preview-image-wrap">
+          <img class="pc-preview-image" src="${item.image}" alt="${item.title}: ${item.label}" loading="lazy" />
+        </div>
+        <div class="pc-preview-content">
+          <span class="pc-preview-kicker">${item.title}</span>
+          <h4>${item.label}</h4>
+          <p>${item.description}</p>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
   }
 
   document.addEventListener("DOMContentLoaded", () => {
